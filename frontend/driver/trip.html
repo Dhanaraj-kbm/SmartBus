@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Details - SmartBus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="../index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="trip.html">Trip Details</a></li>
+          <li><a href="gps.html">GPS Broadcast</a></li>
+          <li><a href="../login.html">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2>Trip Details Management</h2>
+
+    <div class="card" style="margin-top: 24px; max-width: 600px;">
+      <h3>Trip #TR-101</h3>
+      <hr style="margin: 16px 0; border: 0.5px solid var(--border-light); opacity: 0.5;">
+      
+      <p style="margin-bottom: 8px;"><strong>Route Name:</strong> Metro City &rarr; Coastal Town</p>
+      <p style="margin-bottom: 8px;"><strong>Scheduled Departure:</strong> Morning 08:00 AM</p>
+      <p style="margin-bottom: 8px;"><strong>Booked Seats:</strong> 15 / 40 Passengers</p>
+      <p style="margin-bottom: 24px;"><strong>Trip Status:</strong> <span style="background-color: var(--info); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">ASSIGNED</span></p>
+
+      <div class="flex-center" style="gap: 16px;">
+        <button class="btn btn-primary" style="flex: 1;">Start Trip</button>
+        <button class="btn btn-secondary" style="flex: 1; background-color: var(--success);">End Trip</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

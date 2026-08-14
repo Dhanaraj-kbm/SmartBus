@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Select Seats - SmartBus</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .seat-map-wrapper {
+      background-color: var(--bg-light-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    @media (prefers-color-scheme: dark) {
+      .seat-map-wrapper {
+        background-color: var(--bg-dark-card);
+        border-color: var(--border-dark);
+      }
+    }
+    .seat-grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 50px);
+      gap: 16px;
+      justify-content: center;
+      margin: 30px 0;
+    }
+    .seat-box {
+      width: 50px;
+      height: 50px;
+      border: 2px solid var(--primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition-smooth);
+    }
+    .seat-box.available:hover {
+      background-color: var(--primary-light);
+    }
+    .seat-box.selected {
+      background-color: var(--primary);
+      color: white;
+    }
+    .seat-box.occupied {
+      border-color: var(--border-light);
+      background-color: var(--border-light);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    @media (prefers-color-scheme: dark) {
+      .seat-box.occupied {
+        border-color: var(--border-dark);
+        background-color: var(--border-dark);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="search.html">Search Buses</a></li>
+          <li><a href="tracking.html">Live Tracking</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="register.html">Register</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2 style="text-align: center; margin-bottom: 24px;">Choose Your Seats</h2>
+    
+    <div class="seat-map-wrapper">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h3>Select Seats for Bus Trip 101</h3>
+        <p style="font-size: 0.9rem; opacity: 0.8;">Selected Route: Metro City &rarr; Coastal Town</p>
+      </div>
+
+      <div class="seat-grid-container" id="seat-grid">
+        <!-- Static placeholder seats -->
+        <div class="seat-box available">A1</div>
+        <div class="seat-box available">A2</div>
+        <div class="seat-box occupied">A3</div>
+        <div class="seat-box occupied">A4</div>
+        <div class="seat-box available">B1</div>
+        <div class="seat-box available">B2</div>
+        <div class="seat-box available">B3</div>
+        <div class="seat-box available">B4</div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 20px; font-size: 0.9rem; margin-bottom: 30px;">
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 15px; height: 15px; border: 2px solid var(--primary); border-radius: 3px; display: inline-block;"></span> Available</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 15px; height: 15px; background-color: var(--primary); border-radius: 3px; display: inline-block;"></span> Selected</span>
+        <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 15px; height: 15px; background-color: var(--border-light); border-radius: 3px; display: inline-block;"></span> Occupied</span>
+      </div>
+
+      <div class="flex-center">
+        <a href="passenger.html" class="btn btn-primary" style="width: 100%; max-width: 300px;">Confirm & Enter Passenger Details</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+  <script src="js/seats.js"></script>
+</body>
+</html>

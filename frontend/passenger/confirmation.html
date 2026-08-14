@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="SmartBus booking confirmation.">
+
+  <title>Booking Confirmation — SmartBus</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="confirmation-page">
+
+  <header class="dashboard-header">
+
+    <div class="container dashboard-navbar">
+
+      <!-- Brand -->
+      <a href="../index.html" class="brand" aria-label="SmartBus home">
+        <span class="brand-icon" aria-hidden="true">
+          🚌
+        </span>
+
+        <span>
+          Smart<span>Bus</span>
+        </span>
+      </a>
+
+
+      <!-- Navigation -->
+      <nav class="dashboard-nav" aria-label="Main navigation">
+
+        <a href="./dashboard.html" class="dashboard-nav-link">
+          Dashboard
+        </a>
+
+        <a href="../search.html" class="dashboard-nav-link">
+          Search Buses
+        </a>
+
+        <a href="./bookings.html" class="dashboard-nav-link">
+          My Bookings
+        </a>
+
+        <a href="./tracking.html" class="dashboard-nav-link">
+          Track Bus
+        </a>
+
+      </nav>
+
+
+      <!-- User -->
+      <div class="dashboard-user">
+
+        <button type="button" class="notification-button" aria-label="Notifications">
+          ♢
+
+          <span class="notification-badge">
+            2
+          </span>
+        </button>
+
+
+        <button type="button" class="user-menu">
+
+          <span class="user-avatar">
+            R
+          </span>
+
+          <span class="user-info">
+            <strong>Raj</strong>
+            <small>Passenger</small>
+          </span>
+
+          <span class="user-chevron">
+            ▾
+          </span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main class="confirmation-main">
+
+    <div class="container">
+
+
+      <!-- =========================
+             Booking Progress
+        ========================== -->
+
+      <nav class="details-breadcrumb confirmation-breadcrumb" aria-label="Booking progress">
+
+        <a href="../search.html">
+          Search
+        </a>
+
+        <span>›</span>
+
+        <span>
+          Select Seats
+        </span>
+
+        <span>›</span>
+
+        <span>
+          Passenger Details
+        </span>
+
+        <span>›</span>
+
+        <strong>
+          Confirmation
+        </strong>
+
+      </nav>
+
+
+      <!-- =========================
+             Success Message
+        ========================== -->
+
+      <section class="confirmation-success">
+
+        <div class="confirmation-success-icon" aria-hidden="true">
+          ✓
+        </div>
+
+        <span class="eyebrow">
+          Booking successful
+        </span>
+
+        <h1>
+          Your journey is confirmed!
+        </h1>
+
+        <p>
+          Your SmartBus booking has been successfully
+          reserved. Keep your booking ID for future
+          reference.
+        </p>
+
+      </section>
+
+
+      <!-- =========================
+             Booking ID
+        ========================== -->
+
+      <section class="booking-id-card">
+
+        <div>
+
+          <span>
+            Booking ID
+          </span>
+
+          <strong id="bookingId">
+            #SB202608001
+          </strong>
+
+        </div>
+
+        <button type="button" id="copyBookingId" class="copy-booking-button">
+          Copy ID
+        </button>
+
+      </section>
+
+
+      <!-- =========================
+             Confirmation Layout
+        ========================== -->
+
+      <section class="confirmation-layout">
+
+
+        <!-- =========================
+                 Left Content
+            ========================== -->
+
+        <div class="confirmation-content">
+
+
+          <!-- Journey Details -->
+
+          <div class="confirmation-card">
+
+            <div class="confirmation-card-header">
+
+              <div>
+
+                <span class="panel-eyebrow">
+                  Your journey
+                </span>
+
+                <h2>
+                  Journey details
+                </h2>
+
+              </div>
+
+              <span class="confirmed-badge">
+                Confirmed
+              </span>
+
+            </div>
+
+
+            <!-- Route -->
+
+            <div class="confirmation-route">
+
+              <div class="confirmation-location">
+
+                <strong id="departureTime">
+                  07:30 AM
+                </strong>
+
+                <span id="departureCity">
+                  Guwahati
+                </span>
+
+              </div>
+
+
+              <div class="confirmation-route-line">
+
+                <span>
+                  Direct
+                </span>
+
+                <div></div>
+
+                <small>
+                  10h 30m
+                </small>
+
+              </div>
+
+
+              <div class="confirmation-location arrival">
+
+                <strong id="arrivalTime">
+                  06:00 PM
+                </strong>
+
+                <span id="arrivalCity">
+                  Imphal
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <!-- Journey Information -->
+
+            <div class="confirmation-info-grid">
+
+              <div>
+
+                <span>
+                  Bus
+                </span>
+
+                <strong id="busName">
+                  Royal Express
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Travel date
+                </span>
+
+                <strong id="travelDate">
+                  20 Aug 2026
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Bus type
+                </span>
+
+                <strong>
+                  AC Sleeper
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- =========================
+                     Passenger Details
+                ========================== -->
+
+          <div class="confirmation-card">
+
+            <div class="confirmation-card-header">
+
+              <div>
+
+                <span class="panel-eyebrow">
+                  Travellers
+                </span>
+
+                <h2>
+                  Passenger details
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div id="confirmedPassengers" class="confirmed-passengers">
+              <!-- Generated by confirmation.js -->
+            </div>
+
+          </div>
+
+
+          <!-- =========================
+                     Contact Information
+                ========================== -->
+
+          <div class="confirmation-card">
+
+            <div class="confirmation-card-header">
+
+              <div>
+
+                <span class="panel-eyebrow">
+                  Contact
+                </span>
+
+                <h2>
+                  Contact information
+                </h2>
+
+              </div>
+
+            </div>
+
+
+            <div class="confirmation-contact">
+
+              <div>
+
+                <span>
+                  Email
+                </span>
+
+                <strong id="contactEmail">
+                  —
+                </strong>
+
+              </div>
+
+
+              <div>
+
+                <span>
+                  Phone
+                </span>
+
+                <strong id="contactPhone">
+                  —
+                </strong>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================
+                 Right Summary
+            ========================== -->
+
+        <aside class="confirmation-summary">
+
+          <div class="confirmation-summary-header">
+
+            <span class="panel-eyebrow">
+              Payment summary
+            </span>
+
+            <h2>
+              Fare details
+            </h2>
+
+          </div>
+
+
+          <!-- Seat Fare -->
+
+          <div class="confirmation-fare-row">
+
+            <span>
+              Seat fare
+            </span>
+
+            <strong id="seatFare">
+              ₹0
+            </strong>
+
+          </div>
+
+
+          <!-- Service Fee -->
+
+          <div class="confirmation-fare-row">
+
+            <span>
+              Service fee
+            </span>
+
+            <strong id="serviceFee">
+              ₹0
+            </strong>
+
+          </div>
+
+
+          <!-- Total -->
+
+          <div class="confirmation-total">
+
+            <span>
+              Total paid
+            </span>
+
+            <strong id="totalFare">
+              ₹0
+            </strong>
+
+          </div>
+
+
+          <!-- Payment Status -->
+
+          <div class="payment-status">
+
+            <span class="payment-check" aria-hidden="true">
+              ✓
+            </span>
+
+            <div>
+
+              <strong>
+                Payment successful
+              </strong>
+
+              <span>
+                Your booking is confirmed.
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- Ticket -->
+
+          <button type="button" id="viewTicketButton" class="btn btn-primary confirmation-ticket-button">
+            View Ticket
+
+            <span aria-hidden="true">
+              →
+            </span>
+
+          </button>
+
+
+          <!-- Dashboard -->
+
+          <a href="./dashboard.html" class="confirmation-dashboard-link">
+            Back to Dashboard
+          </a>
+
+        </aside>
+
+      </section>
+
+
+      <!-- =========================
+             Important Information
+        ========================== -->
+
+      <section class="confirmation-note">
+
+        <span class="confirmation-note-icon" aria-hidden="true">
+          i
+        </span>
+
+        <div>
+
+          <strong>
+            Important
+          </strong>
+
+          <p>
+            Please carry a valid identification document
+            while travelling. Your ticket and booking ID
+            may be required during boarding.
+          </p>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <!-- Confirmation JavaScript -->
+
+  <script src="../js/confirmation.js"></script>
+
+</body>
+
+</html>

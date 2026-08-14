@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - SmartBus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="../index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="users.html">Users</a></li>
+          <li><a href="buses.html">Buses</a></li>
+          <li><a href="routes.html">Routes</a></li>
+          <li><a href="schedules.html">Schedules</a></li>
+          <li><a href="bookings.html">Bookings</a></li>
+          <li><a href="drivers.html">Drivers</a></li>
+          <li><a href="../login.html">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2>Admin Administration Panel</h2>
+    <p style="opacity: 0.8; margin-top: 6px;">Manage accounts, bus deployments, trip routes, active scheduling, and reservations.</p>
+
+    <div class="grid-cols-3" style="margin-top: 30px;" id="admin-panel">
+      <div class="card">
+        <h3>User Management</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Register and manage Passengers, Drivers, and Admin users.</p>
+        <a href="users.html" class="btn btn-outline" style="width: 100%;">View Users</a>
+      </div>
+      <div class="card">
+        <h3>Bus Fleets</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Register vehicles, total capacities, and status updates.</p>
+        <a href="buses.html" class="btn btn-outline" style="width: 100%;">View Buses</a>
+      </div>
+      <div class="card">
+        <h3>Route Networks</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Configure source, destination, and static route mappings.</p>
+        <a href="routes.html" class="btn btn-outline" style="width: 100%;">View Routes</a>
+      </div>
+      <div class="card">
+        <h3>Schedule Dispatch</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Create and dispatch daily / weekly bus trip schedules.</p>
+        <a href="schedules.html" class="btn btn-outline" style="width: 100%;">View Schedules</a>
+      </div>
+      <div class="card">
+        <h3>All Reservations</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Monitor client ticket purchases and active waiting lists.</p>
+        <a href="bookings.html" class="btn btn-outline" style="width: 100%;">View Bookings</a>
+      </div>
+      <div class="card">
+        <h3>Driver Allocations</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Assign qualified seed drivers to active bus schedules.</p>
+        <a href="drivers.html" class="btn btn-outline" style="width: 100%;">Allocate Drivers</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

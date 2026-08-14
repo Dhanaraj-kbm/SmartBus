@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Schedules - SmartBus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="../index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="users.html">Users</a></li>
+          <li><a href="buses.html">Buses</a></li>
+          <li><a href="routes.html">Routes</a></li>
+          <li><a href="schedules.html">Schedules</a></li>
+          <li><a href="bookings.html">Bookings</a></li>
+          <li><a href="drivers.html">Drivers</a></li>
+          <li><a href="../login.html">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2>Schedule Dispatcher</h2>
+    <p style="opacity: 0.8; margin-top: 6px;">Assign buses to routes and schedule departure times.</p>
+
+    <div class="card" style="margin-top: 24px;">
+      <h3>Trip Schedules</h3>
+      <div style="overflow-x: auto; margin-top: 20px;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-light);">
+              <th style="padding: 12px;">ID</th>
+              <th style="padding: 12px;">Bus ID</th>
+              <th style="padding: 12px;">Route Name</th>
+              <th style="padding: 12px;">Departure Time</th>
+              <th style="padding: 12px;">Ticket Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border-light);">
+              <td style="padding: 12px;">1</td>
+              <td style="padding: 12px;">1 (Volvo AC)</td>
+              <td style="padding: 12px;">Route 101</td>
+              <td style="padding: 12px;">Morning 08:00 AM</td>
+              <td style="padding: 12px;">$25.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

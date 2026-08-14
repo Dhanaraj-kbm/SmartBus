@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Dashboard - SmartBus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="../index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="trip.html">Trip Details</a></li>
+          <li><a href="gps.html">GPS Broadcast</a></li>
+          <li><a href="../login.html">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2>Driver Portal</h2>
+    <p style="opacity: 0.8; margin-top: 6px;">Manage your allocated bus trips and update GPS location during driving.</p>
+
+    <div class="grid-cols-2" style="margin-top: 30px;">
+      <div class="card">
+        <h3>Active Trip Info</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">allocated Route: Metro City &rarr; Coastal Town.</p>
+        <a href="trip.html" class="btn btn-primary">Manage Active Trip</a>
+      </div>
+      <div class="card">
+        <h3>GPS Broadcast Panel</h3>
+        <p style="margin-top: 12px; margin-bottom: 20px; opacity: 0.8;">Stream live coordinates to passengers over WebSocket.</p>
+        <a href="gps.html" class="btn btn-outline">Open GPS Panel</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Create your SmartBus account.">
+
+  <title>Create Account — SmartBus</title>
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="auth-page">
+
+  <header class="site-header">
+    <nav class="navbar container" aria-label="Main navigation">
+
+      <a href="./index.html" class="brand" aria-label="SmartBus home">
+        <span class="brand-icon" aria-hidden="true">🚌</span>
+        <span>Smart<span>Bus</span></span>
+      </a>
+
+      <a href="./index.html" class="auth-back-link">
+        ← Back to home
+      </a>
+
+    </nav>
+  </header>
+
+
+  <main class="auth-main">
+
+    <section class="auth-container">
+
+      <div class="auth-card register-card">
+
+        <div class="auth-header">
+
+          <div class="auth-icon" aria-hidden="true">
+            ✨
+          </div>
+
+          <span class="eyebrow">Get started</span>
+
+          <h1>Create your account</h1>
+
+          <p>
+            Join SmartBus and make your next journey smarter.
+          </p>
+
+        </div>
+
+
+        <form id="registerForm" class="auth-form" novalidate>
+
+          <div class="form-group">
+
+            <label for="registerName">
+              Full name
+            </label>
+
+            <div class="auth-input-wrapper">
+
+              <span class="auth-input-icon" aria-hidden="true">
+                ●
+              </span>
+
+              <input type="text" id="registerName" name="name" placeholder="Your full name" autocomplete="name"
+                minlength="2" required>
+
+            </div>
+
+            <small class="field-error" id="registerNameError"></small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="registerEmail">
+              Email address
+            </label>
+
+            <div class="auth-input-wrapper">
+
+              <span class="auth-input-icon" aria-hidden="true">
+                @
+              </span>
+
+              <input type="email" id="registerEmail" name="email" placeholder="you@example.com" autocomplete="email"
+                required>
+
+            </div>
+
+            <small class="field-error" id="registerEmailError"></small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="registerPhone">
+              Phone number
+            </label>
+
+            <div class="auth-input-wrapper">
+
+              <span class="auth-input-icon" aria-hidden="true">
+                +
+              </span>
+
+              <input type="tel" id="registerPhone" name="phone" placeholder="10-digit mobile number" autocomplete="tel"
+                inputmode="numeric" maxlength="10" required>
+
+            </div>
+
+            <small class="field-error" id="registerPhoneError"></small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="registerPassword">
+              Password
+            </label>
+
+            <div class="auth-input-wrapper">
+
+              <span class="auth-input-icon" aria-hidden="true">
+                •
+              </span>
+
+              <input type="password" id="registerPassword" name="password" placeholder="Create a password"
+                autocomplete="new-password" minlength="8" required>
+
+              <button type="button" class="password-toggle" data-password-target="registerPassword"
+                aria-label="Show password">
+                Show
+              </button>
+
+            </div>
+
+            <small class="password-hint">
+              Use at least 8 characters.
+            </small>
+
+            <small class="field-error" id="registerPasswordError"></small>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="registerConfirmPassword">
+              Confirm password
+            </label>
+
+            <div class="auth-input-wrapper">
+
+              <span class="auth-input-icon" aria-hidden="true">
+                •
+              </span>
+
+              <input type="password" id="registerConfirmPassword" name="confirmPassword"
+                placeholder="Repeat your password" autocomplete="new-password" minlength="8" required>
+
+              <button type="button" class="password-toggle" data-password-target="registerConfirmPassword"
+                aria-label="Show password">
+                Show
+              </button>
+
+            </div>
+
+            <small class="field-error" id="registerConfirmPasswordError"></small>
+
+          </div>
+
+
+          <label class="checkbox-label terms-checkbox">
+
+            <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+
+            <span>
+              I agree to the SmartBus terms and conditions.
+            </span>
+
+          </label>
+
+          <small class="field-error" id="termsError"></small>
+
+
+          <button type="submit" class="btn btn-primary auth-submit">
+            Create Account
+            <span aria-hidden="true">→</span>
+          </button>
+
+
+          <p id="registerMessage" class="form-message" role="alert" aria-live="polite"></p>
+
+        </form>
+
+
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+
+        <p class="auth-switch">
+          Already have an account?
+          <a href="./login.html">Sign in</a>
+        </p>
+
+      </div>
+
+
+      <div class="auth-footer-text">
+        <span>🚌</span>
+        Travel smarter with SmartBus.
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <script src="./js/auth.js"></script>
+
+</body>
+
+</html>

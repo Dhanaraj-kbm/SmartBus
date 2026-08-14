@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="SmartBus passenger dashboard.">
+
+  <title>Dashboard — SmartBus</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="dashboard-page">
+
+  <!-- =========================
+         Header
+    ========================== -->
+  <header class="dashboard-header">
+
+    <div class="container dashboard-navbar">
+
+      <a href="../index.html" class="brand" aria-label="SmartBus home">
+        <span class="brand-icon" aria-hidden="true">🚌</span>
+        <span>Smart<span>Bus</span></span>
+      </a>
+
+
+      <nav class="dashboard-nav" aria-label="Passenger navigation">
+
+        <a href="./dashboard.html" class="dashboard-nav-link active">
+          Dashboard
+        </a>
+
+        <a href="../search.html" class="dashboard-nav-link">
+          Search Buses
+        </a>
+
+        <a href="../bookings.html" class="dashboard-nav-link">
+          My Bookings
+        </a>
+
+        <a href="../tracking.html" class="dashboard-nav-link">
+          Track Bus
+        </a>
+
+      </nav>
+
+
+      <div class="dashboard-user">
+
+        <button type="button" class="notification-button" aria-label="Notifications" title="Notifications">
+          <span aria-hidden="true">♢</span>
+          <span class="notification-badge">2</span>
+        </button>
+
+
+        <button type="button" class="user-menu" id="userMenuButton" aria-expanded="false" aria-controls="userDropdown">
+
+          <span class="user-avatar">
+            R
+          </span>
+
+          <span class="user-info">
+            <strong>Raj</strong>
+            <small>Passenger</small>
+          </span>
+
+          <span class="user-chevron" aria-hidden="true">
+            ▾
+          </span>
+
+        </button>
+
+
+        <div class="user-dropdown" id="userDropdown" hidden>
+          <a href="#">
+            Profile
+          </a>
+
+          <a href="#">
+            Settings
+          </a>
+
+          <button type="button" id="logoutButton">
+            Logout
+          </button>
+        </div>
+
+      </div>
+
+
+      <button type="button" class="dashboard-mobile-toggle" id="dashboardMobileToggle" aria-label="Open navigation menu"
+        aria-expanded="false" aria-controls="dashboardNavigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+         Mobile Navigation
+    ========================== -->
+  <nav class="dashboard-mobile-nav" id="dashboardNavigation" aria-label="Mobile passenger navigation">
+    <a href="./dashboard.html" class="active">
+      Dashboard
+    </a>
+
+    <a href="../search.html">
+      Search Buses
+    </a>
+
+    <a href="../bookings.html">
+      My Bookings
+    </a>
+
+    <a href="../tracking.html">
+      Track Bus
+    </a>
+  </nav>
+
+
+  <main class="dashboard-main">
+
+    <div class="container">
+
+
+      <!-- =========================
+                 Welcome
+            ========================== -->
+      <section class="dashboard-welcome">
+
+        <div>
+          <span class="eyebrow">
+            Passenger dashboard
+          </span>
+
+          <h1>
+            Good evening, Raj.
+          </h1>
+
+          <p>
+            Where are you travelling today?
+          </p>
+        </div>
+
+        <a href="../search.html" class="btn btn-primary">
+          Search a Bus
+          <span aria-hidden="true">→</span>
+        </a>
+
+      </section>
+
+
+      <!-- =========================
+                 Search
+            ========================== -->
+      <section class="dashboard-search-card">
+
+        <div class="dashboard-search-heading">
+
+          <div class="dashboard-search-icon">
+            ⌕
+          </div>
+
+          <div>
+            <h2>Plan your next journey</h2>
+
+            <p>
+              Search available buses by route and date.
+            </p>
+          </div>
+
+        </div>
+
+
+        <form class="dashboard-search-form" id="dashboardSearchForm" novalidate>
+
+          <div class="form-group">
+
+            <label for="dashboardFrom">
+              From
+            </label>
+
+            <input type="text" id="dashboardFrom" placeholder="Departure city" required>
+
+          </div>
+
+
+          <div class="dashboard-route-arrow" aria-hidden="true">
+            →
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="dashboardTo">
+              To
+            </label>
+
+            <input type="text" id="dashboardTo" placeholder="Destination city" required>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="dashboardDate">
+              Travel date
+            </label>
+
+            <input type="date" id="dashboardDate" required>
+
+          </div>
+
+
+          <button type="submit" class="btn btn-primary">
+            Search
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </form>
+
+
+        <p id="dashboardSearchMessage" class="form-message" role="alert" aria-live="polite"></p>
+
+      </section>
+
+
+      <!-- =========================
+                 Statistics
+            ========================== -->
+      <section class="dashboard-stats" aria-label="Booking statistics">
+
+        <article class="dashboard-stat-card">
+
+          <div class="stat-icon blue">
+            ◷
+          </div>
+
+          <div>
+            <span>Upcoming trips</span>
+            <strong>2</strong>
+          </div>
+
+          <a href="../bookings.html">
+            View
+          </a>
+
+        </article>
+
+
+        <article class="dashboard-stat-card">
+
+          <div class="stat-icon green">
+            ✓
+          </div>
+
+          <div>
+            <span>Total bookings</span>
+            <strong>8</strong>
+          </div>
+
+          <a href="../bookings.html">
+            History
+          </a>
+
+        </article>
+
+
+        <article class="dashboard-stat-card">
+
+          <div class="stat-icon orange">
+            ♧
+          </div>
+
+          <div>
+            <span>Waiting lists</span>
+            <strong>1</strong>
+          </div>
+
+          <a href="#">
+            View
+          </a>
+
+        </article>
+
+
+        <article class="dashboard-stat-card">
+
+          <div class="stat-icon purple">
+            ●
+          </div>
+
+          <div>
+            <span>Active tracking</span>
+            <strong>1</strong>
+          </div>
+
+          <a href="../tracking.html">
+            Track
+          </a>
+
+        </article>
+
+      </section>
+
+
+      <!-- =========================
+                 Main Dashboard Grid
+            ========================== -->
+      <section class="dashboard-content-grid">
+
+
+        <!-- Upcoming Journey -->
+        <article class="dashboard-panel upcoming-panel">
+
+          <div class="panel-header">
+
+            <div>
+              <span class="panel-eyebrow">
+                Your next journey
+              </span>
+
+              <h2>Upcoming trip</h2>
+            </div>
+
+            <a href="../bookings.html">
+              View all
+            </a>
+
+          </div>
+
+
+          <div class="journey-card">
+
+            <div class="journey-status">
+              <span class="status-badge confirmed">
+                Confirmed
+              </span>
+
+              <span>
+                Booking #SB20260081
+              </span>
+            </div>
+
+
+            <div class="journey-route">
+
+              <div class="journey-location">
+
+                <strong>07:30 AM</strong>
+
+                <span>
+                  Guwahati
+                </span>
+
+              </div>
+
+
+              <div class="journey-line">
+
+                <span class="journey-duration">
+                  10h 30m
+                </span>
+
+                <div class="journey-track">
+                  <span></span>
+                </div>
+
+                <small>
+                  Direct
+                </small>
+
+              </div>
+
+
+              <div class="journey-location destination">
+
+                <strong>06:00 PM</strong>
+
+                <span>
+                  Imphal
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="journey-details">
+
+              <div>
+                <span>Bus</span>
+                <strong>Royal Express</strong>
+              </div>
+
+              <div>
+                <span>Date</span>
+                <strong>20 Aug 2026</strong>
+              </div>
+
+              <div>
+                <span>Seat</span>
+                <strong>A12 · Window</strong>
+              </div>
+
+              <div>
+                <span>Fare</span>
+                <strong>₹850</strong>
+              </div>
+
+            </div>
+
+
+            <div class="journey-actions">
+
+              <a href="../confirmation.html" class="btn btn-outline">
+                View Ticket
+              </a>
+
+              <a href="../tracking.html" class="btn btn-primary">
+                Track Bus
+                <span aria-hidden="true">→</span>
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- Quick Actions -->
+        <aside class="dashboard-panel quick-actions-panel">
+
+          <div class="panel-header">
+
+            <div>
+              <span class="panel-eyebrow">
+                Shortcuts
+              </span>
+
+              <h2>Quick actions</h2>
+            </div>
+
+          </div>
+
+
+          <div class="quick-actions">
+
+            <a href="../search.html" class="quick-action">
+
+              <span class="quick-action-icon blue">
+                ⌕
+              </span>
+
+              <span>
+                <strong>Search buses</strong>
+                <small>
+                  Find your next journey
+                </small>
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </a>
+
+
+            <a href="../bookings.html" class="quick-action">
+
+              <span class="quick-action-icon green">
+                ▣
+              </span>
+
+              <span>
+                <strong>My bookings</strong>
+                <small>
+                  View your tickets
+                </small>
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </a>
+
+
+            <a href="../tracking.html" class="quick-action">
+
+              <span class="quick-action-icon orange">
+                ●
+              </span>
+
+              <span>
+                <strong>Track a bus</strong>
+                <small>
+                  View live location
+                </small>
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </a>
+
+
+            <a href="#" class="quick-action">
+
+              <span class="quick-action-icon purple">
+                ♧
+              </span>
+
+              <span>
+                <strong>Waiting list</strong>
+                <small>
+                  Check your position
+                </small>
+              </span>
+
+              <span class="quick-arrow">
+                →
+              </span>
+
+            </a>
+
+          </div>
+
+        </aside>
+
+
+      </section>
+
+
+      <!-- =========================
+                 Recent Bookings
+            ========================== -->
+      <section class="dashboard-panel recent-bookings-panel">
+
+        <div class="panel-header">
+
+          <div>
+            <span class="panel-eyebrow">
+              Activity
+            </span>
+
+            <h2>Recent bookings</h2>
+          </div>
+
+          <a href="../bookings.html">
+            View all bookings →
+          </a>
+
+        </div>
+
+
+        <div class="booking-table-wrapper">
+
+          <table class="booking-table">
+
+            <thead>
+              <tr>
+                <th>Route</th>
+                <th>Date</th>
+                <th>Bus</th>
+                <th>Seat</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              <tr>
+
+                <td>
+                  <strong>Guwahati → Imphal</strong>
+                </td>
+
+                <td>
+                  20 Aug 2026
+                </td>
+
+                <td>
+                  Royal Express
+                </td>
+
+                <td>
+                  A12
+                </td>
+
+                <td>
+                  <span class="status-badge confirmed">
+                    Confirmed
+                  </span>
+                </td>
+
+                <td>
+                  <a href="../confirmation.html">
+                    View
+                  </a>
+                </td>
+
+              </tr>
+
+
+              <tr>
+
+                <td>
+                  <strong>Imphal → Guwahati</strong>
+                </td>
+
+                <td>
+                  03 Aug 2026
+                </td>
+
+                <td>
+                  Valley Rider
+                </td>
+
+                <td>
+                  B08
+                </td>
+
+                <td>
+                  <span class="status-badge completed">
+                    Completed
+                  </span>
+                </td>
+
+                <td>
+                  <a href="#">
+                    View
+                  </a>
+                </td>
+
+              </tr>
+
+
+              <tr>
+
+                <td>
+                  <strong>Guwahati → Shillong</strong>
+                </td>
+
+                <td>
+                  28 Jul 2026
+                </td>
+
+                <td>
+                  Highland Bus
+                </td>
+
+                <td>
+                  C14
+                </td>
+
+                <td>
+                  <span class="status-badge completed">
+                    Completed
+                  </span>
+                </td>
+
+                <td>
+                  <a href="#">
+                    View
+                  </a>
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+    </div>
+
+  </main>
+
+
+  <!-- =========================
+         Footer
+    ========================== -->
+  <footer class="dashboard-footer">
+
+    <div class="container dashboard-footer-content">
+
+      <span>
+        © 2026 SmartBus
+      </span>
+
+      <span>
+        Intelligent travel, simplified.
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <script src="../js/passenger.js"></script>
+
+</body>
+
+</html>

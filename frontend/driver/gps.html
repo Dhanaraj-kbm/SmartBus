@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Broadcast - SmartBus</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <a href="../index.html" class="logo">Smart<span>Bus</span></a>
+        <ul class="nav-links">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="trip.html">Trip Details</a></li>
+          <li><a href="gps.html">GPS Broadcast</a></li>
+          <li><a href="../login.html">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="flex: 1; padding: 40px 24px;">
+    <h2>GPS Broadcast Control Panel</h2>
+    <p style="opacity: 0.8; margin-top: 6px;">Simulates or handles the transmission of GPS updates from the device.</p>
+
+    <div class="card" style="margin-top: 24px; max-width: 600px; text-align: center;">
+      <h3>Broadcasting Status</h3>
+      <div style="font-size: 1.5rem; font-weight: 700; margin: 20px 0; color: var(--danger);" id="broadcast-status">
+        ● NOT BROADCASTING
+      </div>
+      
+      <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 24px;">
+        Once started, coordinates will be sent over WebSockets periodically to feed the Passenger ETA systems.
+      </p>
+
+      <button class="btn btn-primary" id="toggle-broadcast-btn" style="width: 100%; max-width: 300px;">Start GPS Stream</button>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 SmartBus Project. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>

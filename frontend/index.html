@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="SmartBus - Intelligent bus ticket reservation and real-time bus tracking.">
+
+  <title>SmartBus — Travel Smarter</title>
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+  <!-- =========================
+         Navigation
+    ========================== -->
+  <header class="site-header">
+    <nav class="navbar container" aria-label="Main navigation">
+
+      <a href="./index.html" class="brand" aria-label="SmartBus home">
+        <span class="brand-icon" aria-hidden="true">🚌</span>
+        <span>Smart<span>Bus</span></span>
+      </a>
+
+      <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-label="Open navigation menu"
+        aria-expanded="false" aria-controls="mainNavigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-links" id="mainNavigation">
+        <a href="./index.html" class="nav-link active">Home</a>
+        <a href="./search.html" class="nav-link">Search Buses</a>
+        <a href="./tracking.html" class="nav-link">Track Bus</a>
+
+        <div class="nav-actions">
+          <a href="./login.html" class="btn btn-outline">Login</a>
+          <a href="./register.html" class="btn btn-primary">Get Started</a>
+        </div>
+      </div>
+
+    </nav>
+  </header>
+
+
+  <main>
+
+    <!-- =========================
+             Hero Section
+        ========================== -->
+    <section class="hero">
+      <div class="hero-background" aria-hidden="true"></div>
+
+      <div class="container hero-content">
+
+        <div class="hero-text">
+
+          <div class="eyebrow">
+            <span class="status-dot"></span>
+            Smarter way to travel
+          </div>
+
+          <h1>
+            Your journey,
+            <span>smarter.</span>
+          </h1>
+
+          <p class="hero-description">
+            Book your bus ticket, choose the perfect seat,
+            and track your bus in real time — all from one place.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#search" class="btn btn-primary btn-large">
+              Search Buses
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <a href="#features" class="btn btn-ghost btn-large">
+              Explore SmartBus
+            </a>
+          </div>
+
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+
+          <div class="hero-map">
+            <div class="map-grid"></div>
+
+            <div class="route-line route-line-one"></div>
+            <div class="route-line route-line-two"></div>
+
+            <div class="map-point point-one"></div>
+            <div class="map-point point-two"></div>
+            <div class="map-point point-three"></div>
+
+            <div class="bus-marker">
+              <span>🚌</span>
+            </div>
+
+            <div class="location-card">
+              <span class="location-icon">📍</span>
+              <div>
+                <strong>Bus is moving</strong>
+                <small>Live tracking active</small>
+              </div>
+              <span class="live-indicator"></span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================
+             Search Section
+        ========================== -->
+    <section class="search-section" id="search">
+      <div class="container">
+
+        <div class="search-card">
+
+          <div class="search-heading">
+            <span class="section-icon">⌕</span>
+
+            <div>
+              <h2>Where are you going?</h2>
+              <p>Find a bus that fits your journey.</p>
+            </div>
+          </div>
+
+          <form id="busSearchForm" class="search-form">
+
+            <div class="form-group">
+              <label for="from">From</label>
+
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">●</span>
+
+                <input type="text" id="from" name="from" placeholder="Departure city" autocomplete="address-level2"
+                  required>
+              </div>
+            </div>
+
+
+            <button type="button" class="swap-button" id="swapLocations" aria-label="Swap departure and destination"
+              title="Swap locations">
+              ⇄
+            </button>
+
+
+            <div class="form-group">
+              <label for="to">To</label>
+
+              <div class="input-wrapper">
+                <span class="input-icon destination-icon" aria-hidden="true">●</span>
+
+                <input type="text" id="to" name="to" placeholder="Destination city" autocomplete="address-level2"
+                  required>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="travelDate">Travel date</label>
+
+              <div class="input-wrapper">
+                <span class="input-icon" aria-hidden="true">▣</span>
+
+                <input type="date" id="travelDate" name="travelDate" required>
+              </div>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary search-button">
+              Search
+              <span aria-hidden="true">→</span>
+            </button>
+
+          </form>
+
+          <p id="searchMessage" class="form-message" role="alert" aria-live="polite"></p>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================
+             Features
+        ========================== -->
+    <section class="section" id="features">
+      <div class="container">
+
+        <div class="section-heading centered">
+
+          <span class="eyebrow">Why SmartBus?</span>
+
+          <h2>
+            More than just
+            <span>ticket booking.</span>
+          </h2>
+
+          <p>
+            Everything you need for a smoother and more
+            transparent bus journey.
+          </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+          <article class="feature-card">
+            <div class="feature-icon">🎫</div>
+
+            <h3>Easy Booking</h3>
+
+            <p>
+              Search available buses, choose your seat,
+              and reserve your ticket in a few simple steps.
+            </p>
+
+            <a href="./search.html" class="feature-link">
+              Find a bus →
+            </a>
+          </article>
+
+
+          <article class="feature-card">
+            <div class="feature-icon">💺</div>
+
+            <h3>Smart Seats</h3>
+
+            <p>
+              Tell us what you prefer and SmartBus can
+              recommend the best available seat for you.
+            </p>
+
+            <span class="feature-link muted">
+              Preference-based
+            </span>
+          </article>
+
+
+          <article class="feature-card">
+            <div class="feature-icon">📍</div>
+
+            <h3>Live Tracking</h3>
+
+            <p>
+              Follow your bus on the map and see its current
+              location while you're on your journey.
+            </p>
+
+            <a href="./tracking.html" class="feature-link">
+              Track a bus →
+            </a>
+          </article>
+
+
+          <article class="feature-card">
+            <div class="feature-icon">🔔</div>
+
+            <h3>Waiting List</h3>
+
+            <p>
+              If your preferred bus is full, join the waiting
+              list and get an opportunity when a seat opens.
+            </p>
+
+            <span class="feature-link muted">
+              Stay informed
+            </span>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================
+             How It Works
+        ========================== -->
+    <section class="section section-muted">
+      <div class="container">
+
+        <div class="section-heading centered">
+
+          <span class="eyebrow">Simple journey</span>
+
+          <h2>
+            From search to
+            <span>destination.</span>
+          </h2>
+
+          <p>
+            SmartBus keeps the entire booking journey simple.
+          </p>
+
+        </div>
+
+
+        <div class="steps">
+
+          <div class="step">
+            <div class="step-number">01</div>
+
+            <div class="step-content">
+              <h3>Search</h3>
+              <p>
+                Enter your departure, destination,
+                and travel date.
+              </p>
+            </div>
+          </div>
+
+
+          <div class="step-line" aria-hidden="true"></div>
+
+
+          <div class="step">
+            <div class="step-number">02</div>
+
+            <div class="step-content">
+              <h3>Choose</h3>
+              <p>
+                Compare available buses and select
+                the one that suits you.
+              </p>
+            </div>
+          </div>
+
+
+          <div class="step-line" aria-hidden="true"></div>
+
+
+          <div class="step">
+            <div class="step-number">03</div>
+
+            <div class="step-content">
+              <h3>Book</h3>
+              <p>
+                Select your preferred seat and
+                confirm your reservation.
+              </p>
+            </div>
+          </div>
+
+
+          <div class="step-line" aria-hidden="true"></div>
+
+
+          <div class="step">
+            <div class="step-number">04</div>
+
+            <div class="step-content">
+              <h3>Track</h3>
+              <p>
+                Follow your bus live and check
+                the estimated arrival time.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================
+             Live Tracking CTA
+        ========================== -->
+    <section class="tracking-section">
+      <div class="container">
+
+        <div class="tracking-card">
+
+          <div class="tracking-content">
+
+            <span class="eyebrow light">
+              Real-time visibility
+            </span>
+
+            <h2>
+              Know where your bus is.
+              <span>Before it reaches you.</span>
+            </h2>
+
+            <p>
+              SmartBus uses GPS-based tracking to show
+              the current location of active buses and
+              provide an estimated arrival time.
+            </p>
+
+            <a href="./tracking.html" class="btn btn-light btn-large">
+              Explore Live Tracking
+              <span aria-hidden="true">→</span>
+            </a>
+
+          </div>
+
+
+          <div class="tracking-preview" aria-hidden="true">
+
+            <div class="preview-map">
+
+              <div class="preview-road road-one"></div>
+              <div class="preview-road road-two"></div>
+
+              <div class="preview-stop stop-one">
+                <span></span>
+                <small>Guwahati</small>
+              </div>
+
+              <div class="preview-stop stop-two">
+                <span></span>
+                <small>Dimapur</small>
+              </div>
+
+              <div class="preview-stop stop-three">
+                <span></span>
+                <small>Imphal</small>
+              </div>
+
+              <div class="preview-bus">
+                🚌
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================
+             Final CTA
+        ========================== -->
+    <section class="cta-section">
+      <div class="container">
+
+        <div class="cta-content">
+
+          <span class="eyebrow">Ready to travel?</span>
+
+          <h2>
+            Your next journey
+            <span>starts here.</span>
+          </h2>
+
+          <p>
+            Search for your next bus and experience a
+            smarter way to travel.
+          </p>
+
+          <a href="#search" class="btn btn-primary btn-large">
+            Search Buses
+            <span aria-hidden="true">→</span>
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+         Footer
+    ========================== -->
+  <footer class="site-footer">
+
+    <div class="container footer-grid">
+
+      <div class="footer-brand">
+
+        <a href="./index.html" class="brand">
+          <span class="brand-icon" aria-hidden="true">🚌</span>
+          <span>Smart<span>Bus</span></span>
+        </a>
+
+        <p>
+          Intelligent bus reservation and real-time
+          transportation tracking.
+        </p>
+
+      </div>
+
+
+      <div class="footer-column">
+        <h3>SmartBus</h3>
+
+        <a href="./index.html">Home</a>
+        <a href="./search.html">Search Buses</a>
+        <a href="./tracking.html">Track Bus</a>
+      </div>
+
+
+      <div class="footer-column">
+        <h3>Account</h3>
+
+        <a href="./login.html">Login</a>
+        <a href="./register.html">Register</a>
+        <a href="./bookings.html">My Bookings</a>
+      </div>
+
+
+      <div class="footer-column">
+        <h3>Features</h3>
+
+        <a href="#features">Smart Seats</a>
+        <a href="./tracking.html">Live Tracking</a>
+        <a href="./search.html">Bus Search</a>
+      </div>
+
+    </div>
+
+
+    <div class="container footer-bottom">
+
+      <p>
+        © 2026 SmartBus. Built as a college project.
+      </p>
+
+      <p>
+        Intelligent travel, simplified.
+      </p>
+
+    </div>
+
+  </footer>
+
+
+  <script src="./js/search.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="SmartBus digital travel ticket.">
+
+    <title>Your Ticket — SmartBus</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="ticket-page">
+
+    <header class="dashboard-header">
+
+        <div class="container dashboard-navbar">
+
+            <!-- Brand -->
+            <a href="../index.html" class="brand" aria-label="SmartBus home">
+                <span class="brand-icon" aria-hidden="true">
+                    🚌
+                </span>
+
+                <span>
+                    Smart<span>Bus</span>
+                </span>
+            </a>
+
+
+            <!-- Navigation -->
+            <nav class="dashboard-nav" aria-label="Main navigation">
+
+                <a href="./dashboard.html" class="dashboard-nav-link">
+                    Dashboard
+                </a>
+
+                <a href="../search.html" class="dashboard-nav-link">
+                    Search Buses
+                </a>
+
+                <a href="./bookings.html" class="dashboard-nav-link">
+                    My Bookings
+                </a>
+
+                <a href="./tracking.html" class="dashboard-nav-link">
+                    Track Bus
+                </a>
+
+            </nav>
+
+
+            <!-- User -->
+            <div class="dashboard-user">
+
+                <button type="button" class="notification-button" aria-label="Notifications">
+                    ♢
+
+                    <span class="notification-badge">
+                        2
+                    </span>
+                </button>
+
+
+                <button type="button" class="user-menu">
+
+                    <span class="user-avatar">
+                        R
+                    </span>
+
+                    <span class="user-info">
+                        <strong>Raj</strong>
+                        <small>Passenger</small>
+                    </span>
+
+                    <span class="user-chevron">
+                        ▾
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="ticket-main">
+
+        <div class="container">
+
+
+            <!-- Breadcrumb -->
+
+            <nav class="details-breadcrumb ticket-breadcrumb" aria-label="Ticket navigation">
+
+                <a href="./dashboard.html">
+                    Dashboard
+                </a>
+
+                <span>›</span>
+
+                <a href="./confirmation.html">
+                    Confirmation
+                </a>
+
+                <span>›</span>
+
+                <strong>
+                    Ticket
+                </strong>
+
+            </nav>
+
+
+            <!-- Page Header -->
+
+            <section class="ticket-page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        Digital ticket
+                    </span>
+
+                    <h1>
+                        Your SmartBus ticket
+                    </h1>
+
+                    <p>
+                        Show this ticket when boarding your bus.
+                    </p>
+
+                </div>
+
+
+                <div class="ticket-actions">
+
+                    <button type="button" id="printTicket" class="btn btn-secondary">
+                        <span aria-hidden="true">
+                            ⎙
+                        </span>
+
+                        Print Ticket
+                    </button>
+
+                    <a href="./dashboard.html" class="btn btn-primary">
+                        Dashboard
+                    </a>
+
+                </div>
+
+            </section>
+
+
+            <!-- Ticket -->
+
+            <section class="digital-ticket" id="digitalTicket">
+
+
+                <!-- Ticket Header -->
+
+                <div class="ticket-header">
+
+                    <div class="ticket-brand">
+
+                        <span class="ticket-brand-icon" aria-hidden="true">
+                            🚌
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                SmartBus
+                            </strong>
+
+                            <span>
+                                Travel smarter
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="ticket-status">
+
+                        <span class="ticket-status-dot">
+                            ✓
+                        </span>
+
+                        <span>
+                            CONFIRMED
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Booking Information -->
+
+                <div class="ticket-booking-info">
+
+                    <div>
+
+                        <span>
+                            Booking ID
+                        </span>
+
+                        <strong id="ticketBookingId">
+                            #SB202608001
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Travel date
+                        </span>
+
+                        <strong id="ticketTravelDate">
+                            20 Aug 2026
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Route -->
+
+                <div class="ticket-route">
+
+                    <div class="ticket-city">
+
+                        <span id="ticketDepartureTime">
+                            07:30 AM
+                        </span>
+
+                        <strong id="ticketDepartureCity">
+                            Guwahati
+                        </strong>
+
+                    </div>
+
+
+                    <div class="ticket-route-middle">
+
+                        <span>
+                            DIRECT
+                        </span>
+
+                        <div class="ticket-route-line">
+
+                            <span class="route-dot"></span>
+
+                            <div></div>
+
+                            <span class="route-bus">
+                                🚌
+                            </span>
+
+                            <div></div>
+
+                            <span class="route-dot"></span>
+
+                        </div>
+
+                        <small>
+                            10h 30m
+                        </small>
+
+                    </div>
+
+
+                    <div class="ticket-city ticket-city-arrival">
+
+                        <span id="ticketArrivalTime">
+                            06:00 PM
+                        </span>
+
+                        <strong id="ticketArrivalCity">
+                            Imphal
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Bus Information -->
+
+                <div class="ticket-bus-info">
+
+                    <div>
+
+                        <span>
+                            Bus
+                        </span>
+
+                        <strong id="ticketBusName">
+                            Royal Express
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Bus type
+                        </span>
+
+                        <strong id="ticketBusType">
+                            AC Sleeper
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Boarding
+                        </span>
+
+                        <strong>
+                            Main Bus Stand
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Divider -->
+
+                <div class="ticket-divider">
+                    <span></span>
+                </div>
+
+
+                <!-- Passenger + QR -->
+
+                <div class="ticket-lower">
+
+
+                    <!-- Passengers -->
+
+                    <div class="ticket-passengers">
+
+                        <div class="ticket-section-title">
+
+                            <span>
+                                PASSENGERS
+                            </span>
+
+                            <strong>
+                                Seat details
+                            </strong>
+
+                        </div>
+
+
+                        <div id="ticketPassengers" class="ticket-passenger-list">
+                            <!-- Generated by ticket.js -->
+                        </div>
+
+
+                        <!-- Fare -->
+
+                        <div class="ticket-fare">
+
+                            <div>
+
+                                <span>
+                                    Seat fare
+                                </span>
+
+                                <strong id="ticketSeatFare">
+                                    ₹0
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Service fee
+                                </span>
+
+                                <strong id="ticketServiceFee">
+                                    ₹0
+                                </strong>
+
+                            </div>
+
+
+                            <div class="ticket-total">
+
+                                <span>
+                                    Total
+                                </span>
+
+                                <strong id="ticketTotalFare">
+                                    ₹0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QR -->
+
+                    <div class="ticket-qr-section">
+
+                        <div class="ticket-qr" id="ticketQr" aria-label="Ticket QR code">
+
+                            <div class="qr-pattern">
+
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+
+                            </div>
+
+                        </div>
+
+                        <strong>
+                            Scan to verify
+                        </strong>
+
+                        <span>
+                            Present this QR code
+                            during boarding.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Contact -->
+
+                <div class="ticket-contact">
+
+                    <div>
+
+                        <span>
+                            Contact email
+                        </span>
+
+                        <strong id="ticketEmail">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Contact phone
+                        </span>
+
+                        <strong id="ticketPhone">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Footer -->
+
+                <div class="ticket-footer">
+
+                    <div>
+
+                        <strong>
+                            SmartBus
+                        </strong>
+
+                        <span>
+                            Book. Travel. Track.
+                        </span>
+
+                    </div>
+
+                    <span>
+                        Keep this ticket safe until your journey ends.
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- Instructions -->
+
+            <section class="ticket-instructions">
+
+                <div class="ticket-instruction-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        Before you board
+                    </strong>
+
+                    <ul>
+
+                        <li>
+                            Carry a valid government-issued ID.
+                        </li>
+
+                        <li>
+                            Arrive at the boarding point at least
+                            15 minutes before departure.
+                        </li>
+
+                        <li>
+                            Show your ticket and ID to the bus staff.
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script src="../js/ticket.js"></script>
+
+</body>
+
+</html>

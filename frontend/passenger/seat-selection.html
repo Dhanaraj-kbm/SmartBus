@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Select your seats for your SmartBus journey.">
+
+    <title>Select Seats — SmartBus</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="seat-page">
+
+    <header class="dashboard-header">
+        <div class="container dashboard-navbar">
+
+            <a href="./index.html" class="brand" aria-label="SmartBus home">
+                <span class="brand-icon" aria-hidden="true">🚌</span>
+                <span>Smart<span>Bus</span></span>
+            </a>
+
+            <nav class="dashboard-nav" aria-label="Main navigation">
+                <a href="./passenger/dashboard.html" class="dashboard-nav-link">
+                    Dashboard
+                </a>
+
+                <a href="./search.html" class="dashboard-nav-link">
+                    Search Buses
+                </a>
+
+                <a href="./bookings.html" class="dashboard-nav-link">
+                    My Bookings
+                </a>
+
+                <a href="./tracking.html" class="dashboard-nav-link">
+                    Track Bus
+                </a>
+            </nav>
+
+            <div class="dashboard-user">
+                <button type="button" class="notification-button" aria-label="Notifications">
+                    ♢
+                    <span class="notification-badge">2</span>
+                </button>
+
+                <button type="button" class="user-menu">
+                    <span class="user-avatar">R</span>
+
+                    <span class="user-info">
+                        <strong>Raj</strong>
+                        <small>Passenger</small>
+                    </span>
+
+                    <span class="user-chevron">▾</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+
+    <main class="seat-main">
+
+        <div class="container">
+
+            <!-- Breadcrumb -->
+            <nav class="seat-breadcrumb" aria-label="Booking progress">
+                <a href="./search.html">Search</a>
+                <span>›</span>
+                <strong>Select Seats</strong>
+                <span>›</span>
+                <span>Passenger Details</span>
+                <span>›</span>
+                <span>Confirmation</span>
+            </nav>
+
+
+            <!-- Page Heading -->
+            <section class="seat-page-heading">
+
+                <div>
+                    <span class="eyebrow">
+                        Step 1 of 3
+                    </span>
+
+                    <h1>Select your seats</h1>
+
+                    <p>
+                        Choose your preferred seats for the journey.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- Journey information -->
+            <section class="seat-trip-card">
+
+                <div class="seat-trip-company">
+                    <span class="bus-type-badge">AC</span>
+
+                    <div>
+                        <strong id="selectedBusName">
+                            Royal Express
+                        </strong>
+
+                        <span>
+                            AC Sleeper
+                        </span>
+                    </div>
+                </div>
+
+
+                <div class="seat-trip-route">
+
+                    <div>
+                        <strong>07:30 AM</strong>
+                        <span>Guwahati</span>
+                    </div>
+
+                    <div class="seat-trip-line">
+                        <span>10h 30m</span>
+                        <div></div>
+                        <small>Direct</small>
+                    </div>
+
+                    <div class="seat-trip-destination">
+                        <strong>06:00 PM</strong>
+                        <span>Imphal</span>
+                    </div>
+
+                </div>
+
+
+                <div class="seat-trip-date">
+                    <span>Travel date</span>
+                    <strong>20 Aug 2026</strong>
+                </div>
+
+            </section>
+
+
+            <!-- Main selection layout -->
+            <section class="seat-selection-layout">
+
+
+                <!-- =========================
+                 Seat Map
+            ========================== -->
+
+                <div class="seat-map-panel">
+
+                    <div class="seat-panel-header">
+
+                        <div>
+                            <span class="panel-eyebrow">
+                                Choose your seat
+                            </span>
+
+                            <h2>Seat layout</h2>
+                        </div>
+
+                        <span class="seat-count">
+                            <strong id="selectedSeatCount">0</strong>
+                            selected
+                        </span>
+
+                    </div>
+
+
+                    <!-- Legend -->
+
+                    <div class="seat-legend">
+
+                        <div>
+                            <span class="legend-seat available"></span>
+                            Available
+                        </div>
+
+                        <div>
+                            <span class="legend-seat selected"></span>
+                            Selected
+                        </div>
+
+                        <div>
+                            <span class="legend-seat occupied"></span>
+                            Occupied
+                        </div>
+
+                    </div>
+
+
+                    <!-- Bus -->
+
+                    <div class="bus-seat-container">
+
+                        <div class="bus-front">
+                            <span>FRONT</span>
+                            <span class="steering-wheel">◉</span>
+                        </div>
+
+
+                        <div id="seatGrid" class="seat-grid" aria-label="Bus seat layout">
+                            <!-- Generated by JavaScript -->
+                        </div>
+
+
+                        <div class="bus-back">
+                            REAR
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================
+                 Booking Summary
+            ========================== -->
+
+                <aside class="seat-summary-panel">
+
+                    <div class="seat-summary-header">
+
+                        <span class="panel-eyebrow">
+                            Your selection
+                        </span>
+
+                        <h2>Booking summary</h2>
+
+                    </div>
+
+
+                    <div class="summary-route">
+
+                        <div>
+                            <strong>Guwahati</strong>
+                            <span>07:30 AM</span>
+                        </div>
+
+                        <span class="summary-arrow">
+                            →
+                        </span>
+
+                        <div>
+                            <strong>Imphal</strong>
+                            <span>06:00 PM</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-divider"></div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Bus
+                        </span>
+
+                        <strong id="summaryBus">
+                            Royal Express
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Travel date
+                        </span>
+
+                        <strong>
+                            20 Aug 2026
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Selected seats
+                        </span>
+
+                        <strong id="selectedSeatsText">
+                            None
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-divider"></div>
+
+
+                    <div class="fare-breakdown">
+
+                        <div>
+                            <span>
+                                Seat fare
+                            </span>
+
+                            <strong id="seatFare">
+                                ₹0
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span>
+                                Service fee
+                            </span>
+
+                            <strong id="serviceFee">
+                                ₹0
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-total">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <strong id="totalFare">
+                            ₹0
+                        </strong>
+
+                    </div>
+
+
+                    <button type="button" id="continueButton" class="btn btn-primary seat-continue-button" disabled>
+                        Continue
+                        <span aria-hidden="true">→</span>
+                    </button>
+
+
+                    <p class="summary-note">
+                        You can select up to 6 seats per booking.
+                    </p>
+
+                </aside>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script src="../js/seat-selection.js"></script>
+
+</body>
+
+</html>

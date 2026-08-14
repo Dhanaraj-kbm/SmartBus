@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="description" content="Search available buses on SmartBus.">
+
+  <title>Search Buses — SmartBus</title>
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="search-page">
+
+  <!-- =========================
+         Header
+    ========================== -->
+  <header class="dashboard-header">
+
+    <div class="container dashboard-navbar">
+
+      <a href="./index.html" class="brand">
+        <span class="brand-icon" aria-hidden="true">🚌</span>
+        <span>Smart<span>Bus</span></span>
+      </a>
+
+      <nav class="dashboard-nav" aria-label="Main navigation">
+
+        <a href="./passenger/dashboard.html" class="dashboard-nav-link">
+          Dashboard
+        </a>
+
+        <a href="./search.html" class="dashboard-nav-link active">
+          Search Buses
+        </a>
+
+        <a href="./bookings.html" class="dashboard-nav-link">
+          My Bookings
+        </a>
+
+        <a href="./tracking.html" class="dashboard-nav-link">
+          Track Bus
+        </a>
+
+      </nav>
+
+      <div class="dashboard-user">
+
+        <button type="button" class="notification-button" aria-label="Notifications">
+          ♢
+          <span class="notification-badge">2</span>
+        </button>
+
+        <button type="button" class="user-menu">
+          <span class="user-avatar">R</span>
+
+          <span class="user-info">
+            <strong>Raj</strong>
+            <small>Passenger</small>
+          </span>
+
+          <span class="user-chevron">▾</span>
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main class="search-main">
+
+    <div class="container">
+
+
+      <!-- =========================
+                 Page Header
+            ========================== -->
+
+      <section class="search-page-header">
+
+        <div>
+
+          <span class="eyebrow">
+            Find your journey
+          </span>
+
+          <h1>Search buses</h1>
+
+          <p>
+            Find the best bus for your next trip.
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <!-- =========================
+                 Search Box
+            ========================== -->
+
+      <section class="results-search-card">
+
+        <form id="busSearchForm" class="results-search-form" novalidate>
+
+          <div class="result-search-field">
+
+            <label for="searchFrom">
+              From
+            </label>
+
+            <input type="text" id="searchFrom" value="Guwahati" placeholder="Departure city" required>
+
+          </div>
+
+
+          <button type="button" class="swap-route-button" id="swapRouteButton"
+            aria-label="Swap departure and destination" title="Swap route">
+            ⇄
+          </button>
+
+
+          <div class="result-search-field">
+
+            <label for="searchTo">
+              To
+            </label>
+
+            <input type="text" id="searchTo" value="Imphal" placeholder="Destination city" required>
+
+          </div>
+
+
+          <div class="result-search-field">
+
+            <label for="searchDate">
+              Travel date
+            </label>
+
+            <input type="date" id="searchDate" required>
+
+          </div>
+
+
+          <button type="submit" class="btn btn-primary">
+            Search
+            <span aria-hidden="true">→</span>
+          </button>
+
+        </form>
+
+      </section>
+
+
+      <!-- =========================
+                 Results Layout
+            ========================== -->
+
+      <section class="results-layout">
+
+
+        <!-- =========================
+                     Filters
+                ========================== -->
+
+        <aside class="filters-panel">
+
+          <div class="filters-header">
+
+            <div>
+              <span class="panel-eyebrow">
+                Refine
+              </span>
+
+              <h2>Filters</h2>
+            </div>
+
+            <button type="button" id="clearFilters" class="clear-filters">
+              Clear
+            </button>
+
+          </div>
+
+
+          <!-- Departure -->
+
+          <div class="filter-group">
+
+            <h3>Departure time</h3>
+
+            <label class="filter-option">
+              <input type="checkbox" name="departure" value="morning">
+              <span>Morning</span>
+              <small>6 AM – 12 PM</small>
+            </label>
+
+            <label class="filter-option">
+              <input type="checkbox" name="departure" value="afternoon">
+              <span>Afternoon</span>
+              <small>12 PM – 6 PM</small>
+            </label>
+
+            <label class="filter-option">
+              <input type="checkbox" name="departure" value="evening">
+              <span>Evening</span>
+              <small>6 PM – 12 AM</small>
+            </label>
+
+          </div>
+
+
+          <!-- Bus Type -->
+
+          <div class="filter-group">
+
+            <h3>Bus type</h3>
+
+            <label class="filter-option">
+              <input type="checkbox" name="busType" value="AC">
+              <span>AC</span>
+            </label>
+
+            <label class="filter-option">
+              <input type="checkbox" name="busType" value="Non-AC">
+              <span>Non-AC</span>
+            </label>
+
+          </div>
+
+
+          <!-- Seat Type -->
+
+          <div class="filter-group">
+
+            <h3>Seat type</h3>
+
+            <label class="filter-option">
+              <input type="checkbox" name="seatType" value="Sleeper">
+              <span>Sleeper</span>
+            </label>
+
+            <label class="filter-option">
+              <input type="checkbox" name="seatType" value="Seater">
+              <span>Seater</span>
+            </label>
+
+          </div>
+
+
+          <!-- Price -->
+
+          <div class="filter-group">
+
+            <h3>Price</h3>
+
+            <div class="price-range">
+
+              <input type="range" id="priceFilter" min="300" max="1500" step="50" value="1500">
+
+              <div>
+                <span>₹300</span>
+                <strong id="priceValue">
+                  ₹1,500
+                </strong>
+              </div>
+
+            </div>
+
+          </div>
+
+        </aside>
+
+
+        <!-- =========================
+                     Bus Results
+                ========================== -->
+
+        <div class="results-content">
+
+          <div class="results-toolbar">
+
+            <div>
+
+              <h2>
+                Available buses
+              </h2>
+
+              <p id="resultsSummary">
+                6 buses found
+              </p>
+
+            </div>
+
+
+            <div class="sort-wrapper">
+
+              <label for="sortResults">
+                Sort by
+              </label>
+
+              <select id="sortResults">
+
+                <option value="recommended">
+                  Recommended
+                </option>
+
+                <option value="price-low">
+                  Price: Low to High
+                </option>
+
+                <option value="price-high">
+                  Price: High to Low
+                </option>
+
+                <option value="departure">
+                  Earliest Departure
+                </option>
+
+                <option value="duration">
+                  Shortest Journey
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <div id="busResults" class="bus-results" aria-live="polite">
+            <!-- Results rendered by search.js -->
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script src="./js/search.js"></script>
+
+</body>
+
+</html>
