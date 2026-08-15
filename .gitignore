@@ -1,0 +1,21 @@
+# Maven
+backend/target/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Temporary files
+*~
+*.tmp
+*.temp
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+backend/src/main/resources/application.properties.local
