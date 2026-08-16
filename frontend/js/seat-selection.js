@@ -3,21 +3,14 @@
 /*
  * SmartBus Seat Selection
  *
- * Frontend demo implementation.
+ * Loads real seat availability from the Spring Boot backend.
  *
- * Later:
- *
- * GET /api/buses/{id}/seats
- *
- * will provide the real seat availability from
- * the Spring Boot backend.
+ * API:
+ * GET /api/schedules/{scheduleId}/seats
  */
 
-
 document.addEventListener("DOMContentLoaded", () => {
-
     initializeSeatSelection();
-
 });
 
 
@@ -25,49 +18,212 @@ document.addEventListener("DOMContentLoaded", () => {
    Configuration
    ========================================================= */
 
-const MAX_SEATS = 6;
+const API_BASE_URL = "http://127.0.0.1:8080";
 
-const SEAT_PRICE = 850;
+const MAX_SEATS = 6;
 
 const SERVICE_FEE_PER_SEAT = 25;
 
 
 /*
- * Demo occupied seats.
- *
- * Backend will eventually provide these.
+ * Selected seats are stored locally while the user
+ * is on the seat-selection page.
  */
 
-const occupiedSeats = new Set([
-    "A2",
-    "A3",
-    "B1",
-    "B4",
-    "C2",
-    "D3",
-    "E1",
-    "E4",
-    "F2",
-    "G3",
-    "H1",
-    "H4"
-]);
-
-
 const selectedSeats = new Set();
+
+
+/*
+ * Real seats returned by the backend.
+ *
+ * Example:
+ *
+ * {
+ *   id: 1,
+ *   seatNumber: "A1",
+ *   status: "AVAILABLE",
+ *   fare: 250.00
+ * }
+ */
+
+let availableSeats = [];
+
+let seatFare = 0;
 
 
 /* =========================================================
    Initialization
    ========================================================= */
 
-function initializeSeatSelection() {
+async function initializeSeatSelection() {
 
-    renderSeatGrid();
+    try {
 
-    updateSummary();
+        /*
+         * Get schedule ID from the URL.
+         *
+         * Example:
+         * seat-selection.html?scheduleId=2
+         */
 
-    initializeContinueButton();
+        const scheduleId =
+            getScheduleId();
+
+
+        if (!scheduleId) {
+
+            showSeatMessage(
+                "No schedule was selected. Please return to the bus search page."
+            );
+
+            return;
+        }
+
+
+        await loadSeats(scheduleId);
+
+        renderSeatGrid();
+
+        updateSummary();
+
+        initializeContinueButton();
+
+
+    } catch (error) {
+
+        console.error(
+            "Seat selection initialization failed:",
+            error
+        );
+
+        showSeatMessage(
+            "Unable to load seat information. Please try again."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   Schedule
+   ========================================================= */
+
+function getScheduleId() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    return params.get(
+        "scheduleId"
+    );
+
+}
+
+
+/* =========================================================
+   API
+   ========================================================= */
+
+async function loadSeats(scheduleId) {
+
+    const token =
+        localStorage.getItem("smartbus_token") ||
+        sessionStorage.getItem("smartbus_token");
+
+
+    if (!token) {
+
+        throw new Error(
+            "Authentication token not found."
+        );
+
+    }
+
+
+    const response =
+        await fetch(
+            `${API_BASE_URL}/api/schedules/${encodeURIComponent(scheduleId)}/seats`,
+            {
+                method: "GET",
+
+                headers: {
+                    "Authorization":
+                        `Bearer ${token}`,
+
+                    "Accept":
+                        "application/json"
+                }
+            }
+        );
+
+
+    if (!response.ok) {
+
+        if (response.status === 401) {
+
+            throw new Error(
+                "Your session has expired."
+            );
+
+        }
+
+
+        if (response.status === 404) {
+
+            throw new Error(
+                "Schedule not found."
+            );
+
+        }
+
+
+        throw new Error(
+            `Failed to load seats. HTTP ${response.status}`
+        );
+
+    }
+
+
+    const data =
+        await response.json();
+
+
+    if (!Array.isArray(data)) {
+
+        throw new Error(
+            "Invalid seat data received from server."
+        );
+
+    }
+
+
+    availableSeats =
+        data;
+
+
+    /*
+     * Use the fare returned by the backend.
+     *
+     * Every seat currently belongs to the same
+     * schedule and therefore has the same fare.
+     */
+
+    if (availableSeats.length > 0) {
+
+        seatFare =
+            Number(
+                availableSeats[0].fare
+            );
+
+    } else {
+
+        seatFare = 0;
+
+    }
 
 }
 
@@ -79,124 +235,179 @@ function initializeSeatSelection() {
 function renderSeatGrid() {
 
     const grid =
-        document.getElementById("seatGrid");
+        document.getElementById(
+            "seatGrid"
+        );
+
 
     if (!grid) {
         return;
     }
 
 
-    const rows =
-        [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H"
-        ];
-
-
     grid.innerHTML = "";
 
 
-    rows.forEach((row) => {
+    /*
+     * Group seats by row.
+     *
+     * A1 A2 A3 A4
+     * B1 B2 B3 B4
+     * ...
+     */
 
-        const rowElement =
-            document.createElement("div");
-
-        rowElement.className =
-            "seat-row";
-
-
-        const rowLabel =
-            document.createElement("span");
-
-        rowLabel.className =
-            "seat-row-label";
-
-        rowLabel.textContent =
-            row;
+    const rows = {};
 
 
-        rowElement.appendChild(rowLabel);
+    availableSeats.forEach(
+        (seat) => {
+
+            const row =
+                seat.seatNumber
+                    .charAt(0)
+                    .toUpperCase();
 
 
-        /*
-         * Layout:
-         *
-         * A1 A2 | A3 A4
-         *
-         * Creates an aisle between seats.
-         */
+            if (!rows[row]) {
 
-        for (let number = 1; number <= 4; number++) {
+                rows[row] = [];
 
-            if (number === 3) {
+            }
+
+
+            rows[row].push(
+                seat
+            );
+
+        }
+    );
+
+
+    const sortedRows =
+        Object.keys(rows)
+            .sort(
+                (a, b) =>
+                    a.localeCompare(b)
+            );
+
+
+    sortedRows.forEach(
+        (row) => {
+
+            createSeatRow(
+                grid,
+                row,
+                rows[row]
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   Create Seat Row
+   ========================================================= */
+
+function createSeatRow(
+    grid,
+    row,
+    seats
+) {
+
+    const rowElement =
+        document.createElement(
+            "div"
+        );
+
+
+    rowElement.className =
+        "seat-row";
+
+
+    /*
+     * Row label
+     */
+
+    const rowLabel =
+        document.createElement(
+            "span"
+        );
+
+
+    rowLabel.className =
+        "seat-row-label";
+
+
+    rowLabel.textContent =
+        row;
+
+
+    rowElement.appendChild(
+        rowLabel
+    );
+
+
+    /*
+     * Sort seats by number.
+     */
+
+    seats.sort(
+        (a, b) =>
+            getSeatNumber(a.seatNumber) -
+            getSeatNumber(b.seatNumber)
+    );
+
+
+    /*
+     * Render:
+     *
+     * A1 A2 | A3 A4
+     */
+
+    seats.forEach(
+        (seat) => {
+
+            const seatNumber =
+                getSeatNumber(
+                    seat.seatNumber
+                );
+
+
+            /*
+             * Insert aisle before seat 3.
+             */
+
+            if (seatNumber === 3) {
 
                 const aisle =
-                    document.createElement("span");
+                    document.createElement(
+                        "span"
+                    );
+
 
                 aisle.className =
                     "seat-aisle";
 
-                rowElement.appendChild(aisle);
+
+                aisle.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+
+                rowElement.appendChild(
+                    aisle
+                );
 
             }
-
-
-            const seatId =
-                `${row}${number}`;
 
 
             const seatButton =
-                document.createElement("button");
-
-            seatButton.type =
-                "button";
-
-            seatButton.className =
-                "bus-seat";
-
-            seatButton.dataset.seat =
-                seatId;
-
-            seatButton.textContent =
-                number;
-
-            seatButton.setAttribute(
-                "aria-label",
-                `Seat ${seatId}`
-            );
-
-
-            if (occupiedSeats.has(seatId)) {
-
-                seatButton.classList.add(
-                    "occupied"
+                createSeatButton(
+                    seat
                 );
-
-                seatButton.disabled = true;
-
-                seatButton.setAttribute(
-                    "aria-label",
-                    `Seat ${seatId}, occupied`
-                );
-
-            } else {
-
-                seatButton.classList.add(
-                    "available"
-                );
-
-                seatButton.addEventListener(
-                    "click",
-                    () => toggleSeat(seatId)
-                );
-
-            }
 
 
             rowElement.appendChild(
@@ -204,11 +415,130 @@ function renderSeatGrid() {
             );
 
         }
+    );
 
 
-        grid.appendChild(rowElement);
+    grid.appendChild(
+        rowElement
+    );
 
-    });
+}
+
+
+/* =========================================================
+   Seat Button
+   ========================================================= */
+
+function createSeatButton(
+    seat
+) {
+
+    const seatButton =
+        document.createElement(
+            "button"
+        );
+
+
+    seatButton.type =
+        "button";
+
+
+    seatButton.className =
+        "bus-seat";
+
+
+    seatButton.dataset.seat =
+        seat.seatNumber;
+
+
+    seatButton.textContent =
+        seat.seatNumber;
+
+
+    const status =
+        String(
+            seat.status || ""
+        ).toUpperCase();
+
+
+    /*
+     * Booked seats cannot be selected.
+     */
+
+    if (
+        status === "BOOKED" ||
+        status === "OCCUPIED"
+    ) {
+
+        seatButton.classList.add(
+            "occupied"
+        );
+
+
+        seatButton.disabled =
+            true;
+
+
+        seatButton.setAttribute(
+            "aria-label",
+            `Seat ${seat.seatNumber}, occupied`
+        );
+
+
+        return seatButton;
+
+    }
+
+
+    /*
+     * Available seat.
+     */
+
+    seatButton.classList.add(
+        "available"
+    );
+
+
+    seatButton.setAttribute(
+        "aria-label",
+        `Seat ${seat.seatNumber}, available`
+    );
+
+
+    seatButton.addEventListener(
+        "click",
+        () => {
+
+            toggleSeat(
+                seat.seatNumber
+            );
+
+        }
+    );
+
+
+    return seatButton;
+
+}
+
+
+/* =========================================================
+   Seat Number
+   ========================================================= */
+
+function getSeatNumber(
+    seatId
+) {
+
+    const match =
+        String(seatId).match(
+            /\d+$/
+        );
+
+
+    return match
+        ? Number(match[0])
+        : 0;
 
 }
 
@@ -217,51 +547,70 @@ function renderSeatGrid() {
    Seat Selection
    ========================================================= */
 
-function toggleSeat(seatId) {
+function toggleSeat(
+    seatId
+) {
 
     /*
-     * Deselect
+     * Deselect.
      */
 
-    if (selectedSeats.has(seatId)) {
+    if (
+        selectedSeats.has(
+            seatId
+        )
+    ) {
 
-        selectedSeats.delete(seatId);
+        selectedSeats.delete(
+            seatId
+        );
+
 
         updateSeatVisual(
             seatId,
             false
         );
 
+
         updateSummary();
 
         return;
+
     }
 
 
     /*
-     * Maximum selection
+     * Maximum selection.
      */
 
-    if (selectedSeats.size >= MAX_SEATS) {
+    if (
+        selectedSeats.size >=
+        MAX_SEATS
+    ) {
 
         showSeatMessage(
             `You can select a maximum of ${MAX_SEATS} seats.`
         );
 
         return;
+
     }
 
 
     /*
-     * Select
+     * Select.
      */
 
-    selectedSeats.add(seatId);
+    selectedSeats.add(
+        seatId
+    );
+
 
     updateSeatVisual(
         seatId,
         true
     );
+
 
     updateSummary();
 
@@ -279,7 +628,7 @@ function updateSeatVisual(
 
     const seat =
         document.querySelector(
-            `[data-seat="${seatId}"]`
+            `[data-seat="${CSS.escape(seatId)}"]`
         );
 
 
@@ -294,14 +643,17 @@ function updateSeatVisual(
             "available"
         );
 
+
         seat.classList.add(
             "selected"
         );
+
 
         seat.setAttribute(
             "aria-label",
             `Seat ${seatId}, selected`
         );
+
 
     } else {
 
@@ -309,9 +661,11 @@ function updateSeatVisual(
             "selected"
         );
 
+
         seat.classList.add(
             "available"
         );
+
 
         seat.setAttribute(
             "aria-label",
@@ -334,77 +688,74 @@ function updateSummary() {
 
 
     /*
-     * Seat count
+     * Selected seat count.
      */
 
-    const countElement =
-        document.getElementById(
-            "selectedSeatCount"
-        );
-
-    if (countElement) {
-
-        countElement.textContent =
-            seats.length;
-
-    }
+    setText(
+        "selectedSeatCount",
+        String(
+            seats.length
+        )
+    );
 
 
     /*
-     * Selected seats
+     * Selected seat names.
      */
 
-    const selectedText =
-        document.getElementById(
-            "selectedSeatsText"
-        );
-
-    if (selectedText) {
-
-        selectedText.textContent =
-            seats.length > 0
-                ? seats.join(", ")
-                : "None";
-
-    }
+    setText(
+        "selectedSeatsText",
+        seats.length > 0
+            ? seats.join(", ")
+            : "None"
+    );
 
 
     /*
-     * Fare
+     * Fare.
      */
 
-    const seatFare =
-        seats.length * SEAT_PRICE;
+    const totalSeatFare =
+        seats.length *
+        seatFare;
 
 
     const serviceFee =
-        seats.length * SERVICE_FEE_PER_SEAT;
+        seats.length *
+        SERVICE_FEE_PER_SEAT;
 
 
     const total =
-        seatFare + serviceFee;
+        totalSeatFare +
+        serviceFee;
 
 
     setText(
         "seatFare",
-        formatCurrency(seatFare)
+        formatCurrency(
+            totalSeatFare
+        )
     );
 
 
     setText(
         "serviceFee",
-        formatCurrency(serviceFee)
+        formatCurrency(
+            serviceFee
+        )
     );
 
 
     setText(
         "totalFare",
-        formatCurrency(total)
+        formatCurrency(
+            total
+        )
     );
 
 
     /*
-     * Continue button
+     * Continue button.
      */
 
     const continueButton =
@@ -444,16 +795,18 @@ function initializeContinueButton() {
         "click",
         () => {
 
-            if (selectedSeats.size === 0) {
+            if (
+                selectedSeats.size === 0
+            ) {
+
                 return;
+
             }
 
 
             /*
-             * Save temporary booking state.
-             *
-             * Later this information will be
-             * submitted to the backend.
+             * Save selected seats for
+             * the next booking page.
              */
 
             sessionStorage.setItem(
@@ -473,8 +826,22 @@ function initializeContinueButton() {
 
 
             /*
-             * Next page will be built later.
+             * Preserve schedule ID.
              */
+
+            const scheduleId =
+                getScheduleId();
+
+
+            if (scheduleId) {
+
+                sessionStorage.setItem(
+                    "smartbus_schedule_id",
+                    scheduleId
+                );
+
+            }
+
 
             window.location.href =
                 "./passenger-details.html";
@@ -491,9 +858,9 @@ function initializeContinueButton() {
 
 function calculateTotal() {
 
-    const seatFare =
+    const seatFareTotal =
         selectedSeats.size *
-        SEAT_PRICE;
+        seatFare;
 
 
     const serviceFee =
@@ -501,16 +868,21 @@ function calculateTotal() {
         SERVICE_FEE_PER_SEAT;
 
 
-    return seatFare + serviceFee;
+    return (
+        seatFareTotal +
+        serviceFee
+    );
 
 }
 
 
 /* =========================================================
-   Helpers
+   Currency
    ========================================================= */
 
-function formatCurrency(value) {
+function formatCurrency(
+    value
+) {
 
     return new Intl.NumberFormat(
         "en-IN",
@@ -524,6 +896,10 @@ function formatCurrency(value) {
 }
 
 
+/* =========================================================
+   DOM Helper
+   ========================================================= */
+
 function setText(
     elementId,
     value
@@ -536,21 +912,22 @@ function setText(
 
 
     if (element) {
+
         element.textContent =
             value;
+
     }
 
 }
 
 
-function showSeatMessage(message) {
+/* =========================================================
+   User Message
+   ========================================================= */
 
-    /*
-     * Keep this simple for now.
-     *
-     * We'll replace it with a proper toast
-     * notification during UI polish.
-     */
+function showSeatMessage(
+    message
+) {
 
     alert(message);
 
