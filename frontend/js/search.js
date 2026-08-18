@@ -1,4 +1,3 @@
-"use strict";
 
 /*
  * SmartBus Bus Search
@@ -37,8 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
 const demoBuses = [
 
   {
-    id: 1,
-    company: "Royal Express",
+  id: 1,
+  scheduleId: 2,
+  company: "Royal Express",
     from: "Guwahati",
     to: "Imphal",
     departure: "07:30 AM",
@@ -701,6 +701,7 @@ function renderBusCard(bus) {
         <article
             class="bus-card"
             data-bus-id="${bus.id}"
+data-schedule-id="${bus.scheduleId || ""}"
         >
 
             <div class="bus-card-main">
@@ -804,6 +805,7 @@ function renderBusCard(bus) {
                         type="button"
                         class="btn btn-primary view-seats-button"
                         data-bus-id="${bus.id}"
+data-schedule-id="${bus.scheduleId || ""}"
                     >
                         Select Seats
                         <span aria-hidden="true">→</span>
@@ -829,7 +831,6 @@ function initializeSeatButtons() {
       ".view-seats-button"
     );
 
-
   buttons.forEach((button) => {
 
     button.addEventListener(
@@ -839,29 +840,46 @@ function initializeSeatButtons() {
         const busId =
           button.dataset.busId;
 
+        const scheduleId =
+          button.dataset.scheduleId;
+
+        if (!scheduleId) {
+
+          alert(
+            "No schedule is associated with this bus."
+          );
+
+          return;
+        }
 
         /*
-         * Next stage:
-         *
-         * /seat-selection.html?bus=1
-         *
-         * For now we simply preserve the
-         * selected bus ID in sessionStorage.
+         * Preserve the selected bus.
          */
-
         sessionStorage.setItem(
           "smartbus_selected_bus",
           busId
         );
 
+        /*
+         * Preserve the selected schedule.
+         */
+        sessionStorage.setItem(
+          "smartbus_schedule_id",
+          scheduleId
+        );
 
+        /*
+         * Open seat selection using
+         * the backend schedule ID.
+         */
         window.location.href =
-          "./passenger/seat-selection.html";
+          `./passenger/seat-selection.html?scheduleId=${encodeURIComponent(scheduleId)}`;
 
       }
     );
 
   });
+
 }
 
 

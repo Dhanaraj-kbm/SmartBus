@@ -59,7 +59,10 @@ public class SecurityConfig {
                     "/api/auth/**",
                     "/error"
                 ).permitAll()
-
+                  .requestMatchers(
+    HttpMethod.GET,
+    "/api/schedules/**"
+).permitAll()
                 .requestMatchers(
                     HttpMethod.OPTIONS,
                     "/**"
