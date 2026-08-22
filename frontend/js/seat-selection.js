@@ -1,93 +1,143 @@
 "use strict";
 
 /*
+ * =========================================================
  * SmartBus Seat Selection
+ * =========================================================
  *
- * Loads real seat availability from the Spring Boot backend.
+ * Backend APIs:
  *
- * API:
+ * GET /api/schedules/{scheduleId}
  * GET /api/schedules/{scheduleId}/seats
+ *
+ * Flow:
+ *
+ * Search Result
+ *      ↓
+ * User clicks Select Seats
+ *      ↓
+ * seat-selection.html?scheduleId=REAL_ID
+ *      ↓
+ * Load exact schedule from backend
+ *      ↓
+ * Load seats for the same schedule
+ *      ↓
+ * Passenger selects seats
+ *      ↓
+ * Passenger Details
+ *
+ * Important:
+ *
+ * Highland Bus -> scheduleId=4
+ * Royal Express -> scheduleId=8
+ *
+ * No bus name is hardcoded.
+ * =========================================================
  */
-
-document.addEventListener("DOMContentLoaded", () => {
-    initializeSeatSelection();
-});
 
 
 /* =========================================================
    Configuration
    ========================================================= */
 
-const API_BASE_URL = "http://127.0.0.1:8080";
+const API_BASE_URL =
+    "http://127.0.0.1:8080";
 
-const MAX_SEATS = 6;
+const MAX_SEATS =
+    6;
 
-const SERVICE_FEE_PER_SEAT = 25;
-
-
-/*
- * Selected seats are stored locally while the user
- * is on the seat-selection page.
- */
-
-const selectedSeats = new Set();
+const SERVICE_FEE_PER_SEAT =
+    25;
 
 
-/*
- * Real seats returned by the backend.
- *
- * Example:
- *
- * {
- *   id: 1,
- *   seatNumber: "A1",
- *   status: "AVAILABLE",
- *   fare: 250.00
- * }
- */
+/* =========================================================
+   Application State
+   ========================================================= */
 
-let availableSeats = [];
+const selectedSeats =
+    new Set();
 
-let seatFare = 0;
+let availableSeats =
+    [];
+
+let seatFare =
+    0;
+
+let currentSchedule =
+    null;
 
 
 /* =========================================================
    Initialization
    ========================================================= */
 
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeSeatSelection();
+
+    }
+);
+
+
 async function initializeSeatSelection() {
 
     try {
 
-        /*
-         * Get schedule ID from the URL.
-         *
-         * Example:
-         * seat-selection.html?scheduleId=2
-         */
-
         const scheduleId =
             getScheduleId();
 
+        console.log("[seat-selection.js] initializeSeatSelection - scheduleId from URL:", scheduleId);
 
         if (!scheduleId) {
 
-            showSeatMessage(
-                "No schedule was selected. Please return to the bus search page."
+            throw new Error(
+                "No valid schedule was selected. Please return to the bus search page."
             );
 
-            return;
         }
 
 
-        await loadSeats(scheduleId);
+        /*
+         * Clear old seat selection when opening
+         * a new schedule.
+         */
+
+        selectedSeats.clear();
+
+        sessionStorage.removeItem(
+            "smartbus_selected_seats"
+        );
+
+        sessionStorage.removeItem(
+            "smartbus_selected_seat_data"
+        );
+
+
+        /*
+         * Load the exact schedule first.
+         */
+
+        await loadScheduleDetails(
+            scheduleId
+        );
+
+
+        /*
+         * Then load seats belonging to that
+         * exact same schedule.
+         */
+
+        await loadSeats(
+            scheduleId
+        );
 
         renderSeatGrid();
 
         updateSummary();
 
         initializeContinueButton();
-
 
     } catch (error) {
 
@@ -97,7 +147,8 @@ async function initializeSeatSelection() {
         );
 
         showSeatMessage(
-            "Unable to load seat information. Please try again."
+            error.message ||
+            "Unable to load seat information."
         );
 
     }
@@ -106,7 +157,7 @@ async function initializeSeatSelection() {
 
 
 /* =========================================================
-   Schedule
+   Schedule ID
    ========================================================= */
 
 function getScheduleId() {
@@ -116,33 +167,472 @@ function getScheduleId() {
             window.location.search
         );
 
+    const scheduleId =
+        params.get(
+            "scheduleId"
+        );
 
-    return params.get(
-        "scheduleId"
+    if (!scheduleId) {
+
+        return null;
+
+    }
+
+    const numericScheduleId =
+        Number(
+            scheduleId
+        );
+
+    if (
+        !Number.isInteger(
+            numericScheduleId
+        ) ||
+        numericScheduleId <= 0
+    ) {
+
+        return null;
+
+    }
+
+    return String(
+        numericScheduleId
     );
 
 }
 
 
 /* =========================================================
-   API
+   Authentication
    ========================================================= */
 
-async function loadSeats(scheduleId) {
+function getAuthToken() {
+
+    return (
+        localStorage.getItem(
+            "smartbus_token"
+        ) ||
+
+        sessionStorage.getItem(
+            "smartbus_token"
+        )
+    );
+
+}
+
+
+function getAuthorizationHeaders() {
 
     const token =
-        localStorage.getItem("smartbus_token") ||
-        sessionStorage.getItem("smartbus_token");
-
+        getAuthToken();
 
     if (!token) {
 
         throw new Error(
-            "Authentication token not found."
+            "Authentication token not found. Please log in again."
         );
 
     }
 
+    return {
+
+        "Authorization":
+            `Bearer ${token}`,
+
+        "Accept":
+            "application/json"
+
+    };
+
+}
+
+
+/* =========================================================
+   Load Schedule Details
+   ========================================================= */
+
+async function loadScheduleDetails(scheduleId) {
+
+    const response =
+        await fetch(
+            `${API_BASE_URL}/api/schedules/${encodeURIComponent(scheduleId)}`,
+            {
+                method: "GET",
+
+                headers:
+                    getAuthorizationHeaders()
+            }
+        );
+
+
+    if (!response.ok) {
+
+        handleApiError(
+            response,
+            "Failed to load schedule details."
+        );
+
+    }
+
+
+    const schedule =
+        await response.json();
+
+    if (
+        !schedule ||
+        String(schedule.id) !== String(scheduleId)
+    ) {
+
+        throw new Error(
+            "The backend returned a different schedule than the one selected."
+        );
+
+    }
+
+    console.log("[seat-selection.js] loadScheduleDetails - schedule data returned by backend:", schedule);
+    console.log("[seat-selection.js] schedule.id:", schedule.id, "busName:", schedule.bus?.busName);
+
+    validateSchedule(
+        schedule
+    );
+
+
+    currentSchedule =
+        schedule;
+
+    renderScheduleDetails(
+        schedule
+    );
+
+
+}
+
+
+/* =========================================================
+   Validate Schedule
+   ========================================================= */
+
+function validateSchedule(schedule) {
+
+    if (
+        !schedule ||
+        !schedule.id ||
+        !schedule.bus ||
+        !schedule.route ||
+        !schedule.departureTime ||
+        !schedule.arrivalTime
+    ) {
+
+        throw new Error(
+            "Invalid schedule data received from the server."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   Save Selected Schedule
+   ========================================================= */
+
+function saveSelectedSchedule(schedule) {
+
+    const bus =
+        schedule.bus;
+
+    const route =
+        schedule.route;
+
+    const departure =
+        new Date(
+            schedule.departureTime
+        );
+
+    const arrival =
+        new Date(
+            schedule.arrivalTime
+        );
+
+
+    const selectedSchedule = {
+
+        scheduleId:
+            Number(
+                schedule.id
+            ),
+
+        company:
+            bus.busName ||
+            "SmartBus",
+
+        busName:
+            bus.busName ||
+            "",
+
+        busNumber:
+            bus.busNumber ||
+            "",
+
+        busType:
+            bus.busType ||
+            "",
+
+        from:
+            route.source ||
+            "",
+
+        to:
+            route.destination ||
+            "",
+
+        routeName:
+            route.routeName ||
+            "",
+
+        departureTime:
+            formatTime(
+                departure
+            ),
+
+        arrivalTime:
+            formatTime(
+                arrival
+            ),
+
+        departureDate:
+            schedule.departureTime,
+
+        arrivalDate:
+            schedule.arrivalTime,
+
+        duration:
+            calculateDuration(
+                departure,
+                arrival
+            ),
+
+        fare:
+            Number(
+                schedule.fare || 0
+            )
+
+    };
+
+
+    sessionStorage.setItem(
+        "smartbus_schedule_id",
+        String(
+            schedule.id
+        )
+    );
+
+
+    sessionStorage.setItem(
+        "smartbus_selected_schedule",
+        JSON.stringify(
+            selectedSchedule
+        )
+    );
+
+}
+
+
+/* =========================================================
+   Render Schedule Details
+   ========================================================= */
+
+function renderScheduleDetails(schedule) {
+
+    const bus =
+        schedule.bus;
+
+    const route =
+        schedule.route;
+
+    const departure =
+        new Date(
+            schedule.departureTime
+        );
+
+    const arrival =
+        new Date(
+            schedule.arrivalTime
+        );
+
+
+    const company =
+        bus.busName ||
+        "SmartBus";
+
+    const busNumber =
+        bus.busNumber ||
+        "";
+
+    const busType =
+        bus.busType ||
+        "";
+
+    const from =
+        route.source ||
+        "";
+
+    const to =
+        route.destination ||
+        "";
+
+    const fare =
+        Number(
+            schedule.fare || 0
+        );
+
+    const departureTime =
+        formatTime(
+            departure
+        );
+
+    const arrivalTime =
+        formatTime(
+            arrival
+        );
+
+    const duration =
+        calculateDuration(
+            departure,
+            arrival
+        );
+
+
+    /*
+     * Update elements by ID.
+     */
+
+    setText(
+        "selectedBusName",
+        company
+    );
+
+    setText(
+        "summaryBus",
+        company
+    );
+
+    setText(
+        "selectedBusTypeBadge",
+        busType
+    );
+
+    setText(
+        "selectedBusType",
+        busType
+    );
+
+    setText("selectedFromCity", from);
+    setText("summaryFromCity", from);
+
+    setText("selectedToCity", to);
+    setText("summaryToCity", to);
+
+    setText("selectedDepartureTime", departureTime);
+
+    setText(
+        "summaryDepartureTime",
+        departureTime
+    );
+
+    setText("selectedArrivalTime", arrivalTime);
+
+    setText(
+        "summaryArrivalTime",
+        arrivalTime
+    );
+
+    setText("selectedDuration", duration);
+
+    const travelDate =
+        departure.toLocaleDateString(
+            "en-GB",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    setText("selectedTravelDate", travelDate);
+    setText("summaryTravelDate", travelDate);
+
+    setText(
+        "seatFare",
+        formatCurrency(
+            fare
+        )
+    );
+
+
+    /*
+     * Update elements by data attribute.
+     */
+
+    updateElementsBySelector(
+        "[data-bus-name]",
+        company
+    );
+
+    updateElementsBySelector(
+        "[data-company-name]",
+        company
+    );
+
+    updateElementsBySelector(
+        "[data-bus-number]",
+        busNumber
+    );
+
+    updateElementsBySelector(
+        "[data-bus-type]",
+        busType
+    );
+
+    updateElementsBySelector(
+        "[data-route-from]",
+        from
+    );
+
+    updateElementsBySelector(
+        "[data-route-to]",
+        to
+    );
+
+    updateElementsBySelector(
+        "[data-departure-time]",
+        departureTime
+    );
+
+    updateElementsBySelector(
+        "[data-arrival-time]",
+        arrivalTime
+    );
+
+    updateElementsBySelector(
+        "[data-duration]",
+        duration
+    );
+
+    updateElementsBySelector(
+        "[data-fare]",
+        formatCurrency(
+            fare
+        )
+    );
+
+}
+
+
+/* =========================================================
+   Load Seats
+   ========================================================= */
+
+async function loadSeats(scheduleId) {
 
     const response =
         await fetch(
@@ -150,39 +640,17 @@ async function loadSeats(scheduleId) {
             {
                 method: "GET",
 
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`,
-
-                    "Accept":
-                        "application/json"
-                }
+                headers:
+                    getAuthorizationHeaders()
             }
         );
 
 
     if (!response.ok) {
 
-        if (response.status === 401) {
-
-            throw new Error(
-                "Your session has expired."
-            );
-
-        }
-
-
-        if (response.status === 404) {
-
-            throw new Error(
-                "Schedule not found."
-            );
-
-        }
-
-
-        throw new Error(
-            `Failed to load seats. HTTP ${response.status}`
+        handleApiError(
+            response,
+            "Failed to load seats."
         );
 
     }
@@ -195,7 +663,7 @@ async function loadSeats(scheduleId) {
     if (!Array.isArray(data)) {
 
         throw new Error(
-            "Invalid seat data received from server."
+            "Invalid seat data received from the server."
         );
 
     }
@@ -205,23 +673,21 @@ async function loadSeats(scheduleId) {
         data;
 
 
-    /*
-     * Use the fare returned by the backend.
-     *
-     * Every seat currently belongs to the same
-     * schedule and therefore has the same fare.
-     */
-
-    if (availableSeats.length > 0) {
+    if (
+        availableSeats.length > 0
+    ) {
 
         seatFare =
             Number(
                 availableSeats[0].fare
-            );
+            ) || 0;
 
     } else {
 
-        seatFare = 0;
+        seatFare =
+            Number(
+                currentSchedule?.fare || 0
+            );
 
     }
 
@@ -229,7 +695,56 @@ async function loadSeats(scheduleId) {
 
 
 /* =========================================================
-   Seat Layout
+   API Error Handling
+   ========================================================= */
+
+function handleApiError(
+    response,
+    defaultMessage
+) {
+
+    if (
+        response.status === 401
+    ) {
+
+        throw new Error(
+            "Your session has expired. Please log in again."
+        );
+
+    }
+
+
+    if (
+        response.status === 403
+    ) {
+
+        throw new Error(
+            "You do not have permission to access this schedule."
+        );
+
+    }
+
+
+    if (
+        response.status === 404
+    ) {
+
+        throw new Error(
+            "The selected schedule was not found."
+        );
+
+    }
+
+
+    throw new Error(
+        `${defaultMessage} HTTP ${response.status}`
+    );
+
+}
+
+
+/* =========================================================
+   Render Seat Grid
    ========================================================= */
 
 function renderSeatGrid() {
@@ -239,38 +754,40 @@ function renderSeatGrid() {
             "seatGrid"
         );
 
-
     if (!grid) {
+
         return;
+
     }
 
 
-    grid.innerHTML = "";
+    grid.innerHTML =
+        "";
 
 
-    /*
-     * Group seats by row.
-     *
-     * A1 A2 A3 A4
-     * B1 B2 B3 B4
-     * ...
-     */
-
-    const rows = {};
+    const rows =
+        {};
 
 
     availableSeats.forEach(
-        (seat) => {
+        seat => {
 
             const row =
-                seat.seatNumber
-                    .charAt(0)
-                    .toUpperCase();
+                getSeatRow(
+                    seat.seatNumber
+                );
+
+            if (!row) {
+
+                return;
+
+            }
 
 
             if (!rows[row]) {
 
-                rows[row] = [];
+                rows[row] =
+                    [];
 
             }
 
@@ -284,15 +801,22 @@ function renderSeatGrid() {
 
 
     const sortedRows =
-        Object.keys(rows)
-            .sort(
-                (a, b) =>
-                    a.localeCompare(b)
-            );
+        Object.keys(
+            rows
+        ).sort(
+            (a, b) =>
+                a.localeCompare(
+                    b,
+                    undefined,
+                    {
+                        numeric: true
+                    }
+                )
+        );
 
 
     sortedRows.forEach(
-        (row) => {
+        row => {
 
             createSeatRow(
                 grid,
@@ -321,24 +845,17 @@ function createSeatRow(
             "div"
         );
 
-
     rowElement.className =
         "seat-row";
 
-
-    /*
-     * Row label
-     */
 
     const rowLabel =
         document.createElement(
             "span"
         );
 
-
     rowLabel.className =
         "seat-row-label";
-
 
     rowLabel.textContent =
         row;
@@ -349,25 +866,19 @@ function createSeatRow(
     );
 
 
-    /*
-     * Sort seats by number.
-     */
-
     seats.sort(
         (a, b) =>
-            getSeatNumber(a.seatNumber) -
-            getSeatNumber(b.seatNumber)
+            getSeatNumber(
+                a.seatNumber
+            ) -
+            getSeatNumber(
+                b.seatNumber
+            )
     );
 
 
-    /*
-     * Render:
-     *
-     * A1 A2 | A3 A4
-     */
-
     seats.forEach(
-        (seat) => {
+        seat => {
 
             const seatNumber =
                 getSeatNumber(
@@ -376,26 +887,25 @@ function createSeatRow(
 
 
             /*
-             * Insert aisle before seat 3.
+             * A1 A2 | A3 A4
              */
 
-            if (seatNumber === 3) {
+            if (
+                seatNumber === 3
+            ) {
 
                 const aisle =
                     document.createElement(
                         "span"
                     );
 
-
                 aisle.className =
                     "seat-aisle";
-
 
                 aisle.setAttribute(
                     "aria-hidden",
                     "true"
                 );
-
 
                 rowElement.appendChild(
                     aisle
@@ -404,14 +914,10 @@ function createSeatRow(
             }
 
 
-            const seatButton =
+            rowElement.appendChild(
                 createSeatButton(
                     seat
-                );
-
-
-            rowElement.appendChild(
-                seatButton
+                )
             );
 
         }
@@ -426,12 +932,10 @@ function createSeatRow(
 
 
 /* =========================================================
-   Seat Button
+   Create Seat Button
    ========================================================= */
 
-function createSeatButton(
-    seat
-) {
+function createSeatButton(seat) {
 
     const seatButton =
         document.createElement(
@@ -442,14 +946,16 @@ function createSeatButton(
     seatButton.type =
         "button";
 
-
     seatButton.className =
         "bus-seat";
-
 
     seatButton.dataset.seat =
         seat.seatNumber;
 
+    seatButton.dataset.seatId =
+        String(
+            seat.id
+        );
 
     seatButton.textContent =
         seat.seatNumber;
@@ -461,38 +967,28 @@ function createSeatButton(
         ).toUpperCase();
 
 
-    /*
-     * Booked seats cannot be selected.
-     */
-
     if (
         status === "BOOKED" ||
-        status === "OCCUPIED"
+        status === "OCCUPIED" ||
+        status === "UNAVAILABLE"
     ) {
 
         seatButton.classList.add(
             "occupied"
         );
 
-
         seatButton.disabled =
             true;
-
 
         seatButton.setAttribute(
             "aria-label",
             `Seat ${seat.seatNumber}, occupied`
         );
 
-
         return seatButton;
 
     }
 
-
-    /*
-     * Available seat.
-     */
 
     seatButton.classList.add(
         "available"
@@ -523,37 +1019,48 @@ function createSeatButton(
 
 
 /* =========================================================
-   Seat Number
+   Seat Helpers
    ========================================================= */
 
-function getSeatNumber(
-    seatId
-) {
+function getSeatRow(seatId) {
 
     const match =
-        String(seatId).match(
+        String(
+            seatId
+        ).match(
+            /^[A-Za-z]+/
+        );
+
+    return match
+        ? match[0].toUpperCase()
+        : "";
+
+}
+
+
+function getSeatNumber(seatId) {
+
+    const match =
+        String(
+            seatId
+        ).match(
             /\d+$/
         );
 
-
     return match
-        ? Number(match[0])
+        ? Number(
+            match[0]
+        )
         : 0;
 
 }
 
 
 /* =========================================================
-   Seat Selection
+   Toggle Seat
    ========================================================= */
 
-function toggleSeat(
-    seatId
-) {
-
-    /*
-     * Deselect.
-     */
+function toggleSeat(seatId) {
 
     if (
         selectedSeats.has(
@@ -565,12 +1072,10 @@ function toggleSeat(
             seatId
         );
 
-
         updateSeatVisual(
             seatId,
             false
         );
-
 
         updateSummary();
 
@@ -578,10 +1083,6 @@ function toggleSeat(
 
     }
 
-
-    /*
-     * Maximum selection.
-     */
 
     if (
         selectedSeats.size >=
@@ -596,10 +1097,6 @@ function toggleSeat(
 
     }
 
-
-    /*
-     * Select.
-     */
 
     selectedSeats.add(
         seatId
@@ -618,7 +1115,7 @@ function toggleSeat(
 
 
 /* =========================================================
-   Visual State
+   Seat Visual State
    ========================================================= */
 
 function updateSeatVisual(
@@ -631,9 +1128,10 @@ function updateSeatVisual(
             `[data-seat="${CSS.escape(seatId)}"]`
         );
 
-
     if (!seat) {
+
         return;
+
     }
 
 
@@ -643,17 +1141,14 @@ function updateSeatVisual(
             "available"
         );
 
-
         seat.classList.add(
             "selected"
         );
-
 
         seat.setAttribute(
             "aria-label",
             `Seat ${seatId}, selected`
         );
-
 
     } else {
 
@@ -661,11 +1156,9 @@ function updateSeatVisual(
             "selected"
         );
 
-
         seat.classList.add(
             "available"
         );
-
 
         seat.setAttribute(
             "aria-label",
@@ -678,7 +1171,7 @@ function updateSeatVisual(
 
 
 /* =========================================================
-   Summary
+   Booking Summary
    ========================================================= */
 
 function updateSummary() {
@@ -686,34 +1179,6 @@ function updateSummary() {
     const seats =
         [...selectedSeats];
 
-
-    /*
-     * Selected seat count.
-     */
-
-    setText(
-        "selectedSeatCount",
-        String(
-            seats.length
-        )
-    );
-
-
-    /*
-     * Selected seat names.
-     */
-
-    setText(
-        "selectedSeatsText",
-        seats.length > 0
-            ? seats.join(", ")
-            : "None"
-    );
-
-
-    /*
-     * Fare.
-     */
 
     const totalSeatFare =
         seats.length *
@@ -728,6 +1193,22 @@ function updateSummary() {
     const total =
         totalSeatFare +
         serviceFee;
+
+
+    setText(
+        "selectedSeatCount",
+        String(
+            seats.length
+        )
+    );
+
+
+    setText(
+        "selectedSeatsText",
+        seats.length > 0
+            ? seats.join(", ")
+            : "None"
+    );
 
 
     setText(
@@ -754,10 +1235,6 @@ function updateSummary() {
     );
 
 
-    /*
-     * Continue button.
-     */
-
     const continueButton =
         document.getElementById(
             "continueButton"
@@ -775,7 +1252,7 @@ function updateSummary() {
 
 
 /* =========================================================
-   Continue
+   Continue Button
    ========================================================= */
 
 function initializeContinueButton() {
@@ -785,34 +1262,111 @@ function initializeContinueButton() {
             "continueButton"
         );
 
-
     if (!button) {
+
         return;
+
     }
 
 
-    button.addEventListener(
-        "click",
+    button.onclick =
         () => {
 
             if (
                 selectedSeats.size === 0
             ) {
 
+                showSeatMessage(
+                    "Please select at least one seat."
+                );
+
                 return;
 
             }
 
 
+            if (!currentSchedule) {
+
+                showSeatMessage(
+                    "Schedule information is missing."
+                );
+
+                return;
+
+            }
+
+
+            const selectedSeatNumbers =
+                [...selectedSeats];
+
+
+            const selectedSeatData =
+                availableSeats.filter(
+                    seat =>
+                        selectedSeats.has(
+                            seat.seatNumber
+                        )
+                );
+
+
             /*
-             * Save selected seats for
-             * the next booking page.
+             * Save selected seat numbers.
              */
 
             sessionStorage.setItem(
                 "smartbus_selected_seats",
                 JSON.stringify(
-                    [...selectedSeats]
+                    selectedSeatNumbers
+                )
+            );
+
+
+            /*
+             * Save complete seat data.
+             */
+
+            sessionStorage.setItem(
+                "smartbus_selected_seat_data",
+                JSON.stringify(
+                    selectedSeatData
+                )
+            );
+
+
+            /*
+             * Preserve the exact backend schedule.
+             */
+
+            sessionStorage.setItem(
+                "smartbus_schedule_id",
+                String(
+                    currentSchedule.id
+                )
+            );
+
+
+            saveSelectedSchedule(
+                currentSchedule
+            );
+
+
+            /*
+             * Save fare information.
+             */
+
+            sessionStorage.setItem(
+                "smartbus_seat_fare",
+                String(
+                    seatFare
+                )
+            );
+
+
+            sessionStorage.setItem(
+                "smartbus_service_fee",
+                String(
+                    selectedSeats.size *
+                    SERVICE_FEE_PER_SEAT
                 )
             );
 
@@ -825,35 +1379,19 @@ function initializeContinueButton() {
             );
 
 
-            /*
-             * Preserve schedule ID.
-             */
-
-            const scheduleId =
-                getScheduleId();
-
-
-            if (scheduleId) {
-
-                sessionStorage.setItem(
-                    "smartbus_schedule_id",
-                    scheduleId
-                );
-
-            }
-
-
             window.location.href =
                 "./passenger-details.html";
 
-        }
-    );
+        };
+
+
+    updateSummary();
 
 }
 
 
 /* =========================================================
-   Fare
+   Fare Calculation
    ========================================================= */
 
 function calculateTotal() {
@@ -877,12 +1415,94 @@ function calculateTotal() {
 
 
 /* =========================================================
+   Date and Time
+   ========================================================= */
+
+function formatTime(date) {
+
+    if (
+        !(date instanceof Date) ||
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "";
+
+    }
+
+
+    return new Intl.DateTimeFormat(
+        "en-IN",
+        {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        }
+    ).format(
+        date
+    );
+
+}
+
+
+function calculateDuration(
+    departure,
+    arrival
+) {
+
+    if (
+        !(departure instanceof Date) ||
+        !(arrival instanceof Date)
+    ) {
+
+        return "";
+
+    }
+
+
+    const difference =
+        arrival.getTime() -
+        departure.getTime();
+
+
+    if (
+        difference < 0
+    ) {
+
+        return "";
+
+    }
+
+
+    const totalMinutes =
+        Math.round(
+            difference / 60000
+        );
+
+
+    const hours =
+        Math.floor(
+            totalMinutes / 60
+        );
+
+
+    const minutes =
+        totalMinutes % 60;
+
+
+    return minutes === 0
+        ? `${hours}h`
+        : `${hours}h ${minutes}m`;
+
+}
+
+
+/* =========================================================
    Currency
    ========================================================= */
 
-function formatCurrency(
-    value
-) {
+function formatCurrency(value) {
 
     return new Intl.NumberFormat(
         "en-IN",
@@ -891,13 +1511,15 @@ function formatCurrency(
             currency: "INR",
             maximumFractionDigits: 0
         }
-    ).format(value);
+    ).format(
+        Number(value) || 0
+    );
 
 }
 
 
 /* =========================================================
-   DOM Helper
+   DOM Helpers
    ========================================================= */
 
 function setText(
@@ -910,7 +1532,6 @@ function setText(
             elementId
         );
 
-
     if (element) {
 
         element.textContent =
@@ -921,14 +1542,37 @@ function setText(
 }
 
 
+function updateElementsBySelector(
+    selector,
+    value
+) {
+
+    const elements =
+        document.querySelectorAll(
+            selector
+        );
+
+
+    elements.forEach(
+        element => {
+
+            element.textContent =
+                value;
+
+        }
+    );
+
+}
+
+
 /* =========================================================
    User Message
    ========================================================= */
 
-function showSeatMessage(
-    message
-) {
+function showSeatMessage(message) {
 
-    alert(message);
+    alert(
+        message
+    );
 
 }

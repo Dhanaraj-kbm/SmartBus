@@ -1,22 +1,40 @@
+"use strict";
 
 /*
+ * =========================================================
  * SmartBus Bus Search
+ * =========================================================
  *
- * This currently uses frontend demo data.
+ * Backend APIs:
  *
- * Later:
- *   demoBuses
- *       ↓
- *   Spring Boot API
- *       ↓
- *   renderBusResults()
+ * GET /api/schedules
  *
- * The UI does not need to be rewritten when the backend
- * becomes available.
+ * Flow:
+ *
+ * Backend schedules
+ *        ↓
+ * Search and filter results
+ *        ↓
+ * User clicks Select Seats
+ *        ↓
+ * seat-selection.html?scheduleId=REAL_BACKEND_ID
+ *
+ * Important:
+ * The schedule ID is never hardcoded.
+ * Each result uses the real schedule.id from the backend.
  */
 
+const API_BASE_URL = "http://127.0.0.1:8080";
 
-document.addEventListener("DOMContentLoaded", () => {
+let allSchedules = [];
+let filteredSchedules = [];
+
+
+/* =========================================================
+   Initialization
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
 
   initializeSearchDate();
   initializeRouteSwap();
@@ -24,151 +42,44 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeFilters();
   initializeSorting();
 
-  renderBusResults();
+  await loadSchedules();
 
 });
 
 
 /* =========================================================
-   Demo Data
+   Authentication
    ========================================================= */
 
-const demoBuses = [
+function getAuthToken() {
 
-  {
-  id: 1,
-  scheduleId: 2,
-  company: "Royal Express",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "07:30 AM",
-    arrival: "06:00 PM",
-    departureHour: 7,
-    duration: 630,
-    durationText: "10h 30m",
-    price: 850,
-    busType: "AC",
-    seatType: "Sleeper",
-    seatsLeft: 12,
-    features: [
-      "AC",
-      "Sleeper",
-      "USB Charging",
-      "Live Tracking"
-    ],
-    recommended: true
-  },
+  return (
+    localStorage.getItem("smartbus_token") ||
+    sessionStorage.getItem("smartbus_token")
+  );
 
-  {
-    id: 2,
-    company: "Valley Rider",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "09:00 AM",
-    arrival: "07:30 PM",
-    departureHour: 9,
-    duration: 630,
-    durationText: "10h 30m",
-    price: 780,
-    busType: "AC",
-    seatType: "Seater",
-    seatsLeft: 8,
-    features: [
-      "AC",
-      "Seater",
-      "USB Charging"
-    ],
-    recommended: true
-  },
+}
 
-  {
-    id: 3,
-    company: "Highland Bus",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "11:15 AM",
-    arrival: "09:15 PM",
-    departureHour: 11,
-    duration: 600,
-    durationText: "10h",
-    price: 720,
-    busType: "Non-AC",
-    seatType: "Seater",
-    seatsLeft: 18,
-    features: [
-      "Seater",
-      "Charging Point"
-    ],
-    recommended: false
-  },
 
-  {
-    id: 4,
-    company: "Manipur Connect",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "02:00 PM",
-    arrival: "12:00 AM",
-    departureHour: 14,
-    duration: 600,
-    durationText: "10h",
-    price: 900,
-    busType: "AC",
-    seatType: "Sleeper",
-    seatsLeft: 5,
-    features: [
-      "AC",
-      "Sleeper",
-      "Wi-Fi",
-      "Live Tracking"
-    ],
-    recommended: true
-  },
+function getAuthorizationHeaders() {
 
-  {
-    id: 5,
-    company: "North East Travels",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "06:30 PM",
-    arrival: "05:30 AM",
-    departureHour: 18,
-    duration: 660,
-    durationText: "11h",
-    price: 820,
-    busType: "AC",
-    seatType: "Sleeper",
-    seatsLeft: 21,
-    features: [
-      "AC",
-      "Sleeper",
-      "Blanket"
-    ],
-    recommended: false
-  },
+  const token =
+    getAuthToken();
 
-  {
-    id: 6,
-    company: "Eastern Rider",
-    from: "Guwahati",
-    to: "Imphal",
-    departure: "08:45 PM",
-    arrival: "07:15 AM",
-    departureHour: 20,
-    duration: 630,
-    durationText: "10h 30m",
-    price: 750,
-    busType: "Non-AC",
-    seatType: "Sleeper",
-    seatsLeft: 9,
-    features: [
-      "Sleeper",
-      "Charging Point"
-    ],
-    recommended: false
+  if (!token) {
+
+    throw new Error(
+      "Authentication token not found. Please log in again."
+    );
+
   }
 
-];
+  return {
+    "Authorization": `Bearer ${token}`,
+    "Accept": "application/json"
+  };
+
+}
 
 
 /* =========================================================
@@ -184,33 +95,38 @@ function initializeSearchDate() {
     return;
   }
 
-
-  const today = new Date();
+  const today =
+    new Date();
 
   const year =
     today.getFullYear();
 
   const month =
-    String(today.getMonth() + 1).padStart(2, "0");
+    String(
+      today.getMonth() + 1
+    ).padStart(2, "0");
 
   const day =
-    String(today.getDate()).padStart(2, "0");
-
+    String(
+      today.getDate()
+    ).padStart(2, "0");
 
   const todayString =
     `${year}-${month}-${day}`;
 
-
-  dateInput.min = todayString;
-
+  dateInput.min =
+    todayString;
 
   /*
-   * Demo date.
-   *
-   * In production this can be populated from
-   * the dashboard search parameters.
+   * Keep the current value if one already exists.
    */
-  dateInput.value = "2026-08-20";
+  if (!dateInput.value) {
+
+    dateInput.value =
+      "2026-08-20";
+
+  }
+
 }
 
 
@@ -221,34 +137,46 @@ function initializeSearchDate() {
 function initializeRouteSwap() {
 
   const button =
-    document.getElementById("swapRouteButton");
+    document.getElementById(
+      "swapRouteButton"
+    );
 
   const from =
-    document.getElementById("searchFrom");
+    document.getElementById(
+      "searchFrom"
+    );
 
   const to =
-    document.getElementById("searchTo");
+    document.getElementById(
+      "searchTo"
+    );
 
-
-  if (!button || !from || !to) {
+  if (
+    !button ||
+    !from ||
+    !to
+  ) {
     return;
   }
 
+  button.addEventListener(
+    "click",
+    () => {
 
-  button.addEventListener("click", () => {
+      const temporary =
+        from.value;
 
-    const temporary =
-      from.value;
+      from.value =
+        to.value;
 
-    from.value =
-      to.value;
+      to.value =
+        temporary;
 
-    to.value =
-      temporary;
+      applySearch();
 
-    renderBusResults();
+    }
+  );
 
-  });
 }
 
 
@@ -259,64 +187,206 @@ function initializeRouteSwap() {
 function initializeSearchForm() {
 
   const form =
-    document.getElementById("busSearchForm");
+    document.getElementById(
+      "searchForm"
+    );
 
-  if (!form) {
-    return;
+  const button =
+    document.getElementById(
+      "searchButton"
+    );
+
+  if (form) {
+
+    form.addEventListener(
+      "submit",
+      event => {
+
+        event.preventDefault();
+
+        applySearch();
+
+      }
+    );
+
   }
 
+  if (
+    button &&
+    !form
+  ) {
 
-  form.addEventListener("submit", (event) => {
+    button.addEventListener(
+      "click",
+      applySearch
+    );
 
-    event.preventDefault();
+  }
 
-
-    const from =
-      document.getElementById("searchFrom")
-        .value
-        .trim();
-
-    const to =
-      document.getElementById("searchTo")
-        .value
-        .trim();
-
-    const date =
-      document.getElementById("searchDate")
-        .value;
+}
 
 
-    if (!from || !to || !date) {
-      return;
-    }
+/* =========================================================
+   Load Schedules
+   ========================================================= */
 
+async function loadSchedules() {
 
-    if (
-      from.toLowerCase() ===
-      to.toLowerCase()
-    ) {
-      alert(
-        "Departure and destination cannot be the same."
+  setLoadingState(true);
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_BASE_URL}/api/schedules`,
+        {
+          method: "GET",
+
+          headers:
+            getAuthorizationHeaders()
+        }
       );
 
-      return;
+    if (!response.ok) {
+
+      handleApiError(
+        response,
+        "Failed to load bus schedules."
+      );
+
     }
 
+    const data =
+      await response.json();
 
-    /*
-     * Later:
-     *
-     * GET /api/buses/search
-     *
-     * ?from=Guwahati
-     * &to=Imphal
-     * &date=2026-08-20
-     */
+    if (!Array.isArray(data)) {
 
+      throw new Error(
+        "Invalid schedule data received from the server."
+      );
+
+    }
+
+    allSchedules =
+      data.filter(
+        schedule =>
+          isValidSchedule(
+            schedule
+          )
+      );
+
+    applySearch();
+
+  } catch (error) {
+
+    console.error(
+      "Failed to load schedules:",
+      error
+    );
+
+    allSchedules = [];
+    filteredSchedules = [];
 
     renderBusResults();
 
-  });
+    showSearchMessage(
+      error.message ||
+      "Unable to load buses."
+    );
+
+  } finally {
+
+    setLoadingState(false);
+
+  }
+
+}
+
+
+/* =========================================================
+   Schedule Validation
+   ========================================================= */
+
+function isValidSchedule(schedule) {
+
+  return Boolean(
+    schedule &&
+    schedule.id &&
+    schedule.bus &&
+    schedule.route &&
+    schedule.departureTime &&
+    schedule.arrivalTime
+  );
+
+}
+
+
+/* =========================================================
+   Search
+   ========================================================= */
+
+function applySearch() {
+
+  const from =
+    getInputValue(
+      "searchFrom"
+    );
+
+  const to =
+    getInputValue(
+      "searchTo"
+    );
+
+  const date =
+    getInputValue(
+      "searchDate"
+    );
+
+  filteredSchedules =
+    allSchedules.filter(
+      schedule => {
+
+        const route =
+          schedule.route;
+
+        const departure =
+          new Date(
+            schedule.departureTime
+          );
+
+        const matchesFrom =
+          !from ||
+          normalizeText(
+            route.source
+          ).includes(
+            normalizeText(from)
+          );
+
+        const matchesTo =
+          !to ||
+          normalizeText(
+            route.destination
+          ).includes(
+            normalizeText(to)
+          );
+
+        const matchesDate =
+          !date ||
+          formatDateForInput(
+            departure
+          ) === date;
+
+        return (
+          matchesFrom &&
+          matchesTo &&
+          matchesDate
+        );
+
+      }
+    );
+
+  applyFilters();
+
 }
 
 
@@ -326,83 +396,180 @@ function initializeSearchForm() {
 
 function initializeFilters() {
 
-  const filterInputs =
+  const checkboxes =
     document.querySelectorAll(
-      ".filter-option input"
+      ".filter-checkbox, [data-filter]"
     );
 
+  checkboxes.forEach(
+    checkbox => {
 
-  filterInputs.forEach((input) => {
+      checkbox.addEventListener(
+        "change",
+        applyFilters
+      );
 
-    input.addEventListener(
-      "change",
-      renderBusResults
+    }
+  );
+
+  const priceRange =
+    document.getElementById(
+      "priceRange"
     );
 
-  });
+  if (priceRange) {
 
-
-  const priceFilter =
-    document.getElementById("priceFilter");
-
-  const priceValue =
-    document.getElementById("priceValue");
-
-
-  if (priceFilter && priceValue) {
-
-    priceFilter.addEventListener(
+    priceRange.addEventListener(
       "input",
-      () => {
-
-        const value =
-          Number(priceFilter.value);
-
-        priceValue.textContent =
-          formatCurrency(value);
-
-        renderBusResults();
-
-      }
+      applyFilters
     );
 
   }
 
-
-  const clearButton =
-    document.getElementById("clearFilters");
+}
 
 
-  if (clearButton) {
+function applyFilters() {
 
-    clearButton.addEventListener(
-      "click",
-      () => {
+  let results =
+    [...filteredSchedules];
 
-        filterInputs.forEach(
-          (input) => {
-            input.checked = false;
-          }
-        );
-
-
-        if (priceFilter) {
-          priceFilter.value = "1500";
-        }
-
-
-        if (priceValue) {
-          priceValue.textContent =
-            "₹1,500";
-        }
-
-
-        renderBusResults();
-
-      }
+  const selectedTimes =
+    getCheckedValues(
+      'input[name="departureTime"]'
     );
 
+  const selectedBusTypes =
+    getCheckedValues(
+      'input[name="busType"]'
+    );
+
+  const selectedSeatTypes =
+    getCheckedValues(
+      'input[name="seatType"]'
+    );
+
+  const maxPrice =
+    getMaxPrice();
+
+
+  /* -----------------------------------------------
+     Departure Time
+     ----------------------------------------------- */
+
+  if (
+    selectedTimes.length > 0
+  ) {
+
+    results =
+      results.filter(
+        schedule => {
+
+          const hour =
+            new Date(
+              schedule.departureTime
+            ).getHours();
+
+          return selectedTimes.some(
+            value =>
+              matchesDepartureTime(
+                hour,
+                value
+              )
+          );
+
+        }
+      );
+
   }
+
+
+  /* -----------------------------------------------
+     Bus Type
+     ----------------------------------------------- */
+
+  if (
+    selectedBusTypes.length > 0
+  ) {
+
+    results =
+      results.filter(
+        schedule => {
+
+          const busType =
+            String(
+              schedule.bus.busType || ""
+            ).toLowerCase();
+
+          return selectedBusTypes.some(
+            value =>
+              busType.includes(
+                String(value)
+                  .toLowerCase()
+              )
+          );
+
+        }
+      );
+
+  }
+
+
+  /* -----------------------------------------------
+     Seat Type
+     ----------------------------------------------- */
+
+  if (
+    selectedSeatTypes.length > 0
+  ) {
+
+    results =
+      results.filter(
+        schedule => {
+
+          const busType =
+            String(
+              schedule.bus.busType || ""
+            ).toLowerCase();
+
+          return selectedSeatTypes.some(
+            value =>
+              busType.includes(
+                String(value)
+                  .toLowerCase()
+              )
+          );
+
+        }
+      );
+
+  }
+
+
+  /* -----------------------------------------------
+     Price
+     ----------------------------------------------- */
+
+  if (
+    maxPrice !== null
+  ) {
+
+    results =
+      results.filter(
+        schedule =>
+          Number(
+            schedule.fare || 0
+          ) <= maxPrice
+      );
+
+  }
+
+
+  filteredSchedules =
+    results;
+
+  applySorting();
+
 }
 
 
@@ -412,490 +579,726 @@ function initializeFilters() {
 
 function initializeSorting() {
 
-  const sort =
-    document.getElementById("sortResults");
+  const sortSelect =
+    document.getElementById(
+      "sortSelect"
+    );
 
-
-  if (!sort) {
+  if (!sortSelect) {
     return;
   }
 
-
-  sort.addEventListener(
+  sortSelect.addEventListener(
     "change",
-    renderBusResults
+    applySorting
   );
+
+}
+
+
+function applySorting() {
+
+  const sortSelect =
+    document.getElementById(
+      "sortSelect"
+    );
+
+  const sortValue =
+    sortSelect
+      ? sortSelect.value
+      : "recommended";
+
+  filteredSchedules.sort(
+    (a, b) => {
+
+      const fareA =
+        Number(
+          a.fare || 0
+        );
+
+      const fareB =
+        Number(
+          b.fare || 0
+        );
+
+      const departureA =
+        new Date(
+          a.departureTime
+        ).getTime();
+
+      const departureB =
+        new Date(
+          b.departureTime
+        ).getTime();
+
+
+      switch (
+      sortValue.toLowerCase()
+      ) {
+
+        case "price-low":
+
+          return fareA - fareB;
+
+        case "price-high":
+
+          return fareB - fareA;
+
+        case "departure":
+
+          return (
+            departureA -
+            departureB
+          );
+
+        case "recommended":
+
+        default:
+
+          return (
+            fareA -
+            fareB
+          );
+
+      }
+
+    }
+  );
+
+  renderBusResults();
+
 }
 
 
 /* =========================================================
-   Filter + Sort + Render
+   Render Results
    ========================================================= */
-
-function getFilteredBuses() {
-
-  let buses =
-    [...demoBuses];
-
-
-  const departureFilters =
-    getCheckedValues("departure");
-
-  const busTypeFilters =
-    getCheckedValues("busType");
-
-  const seatTypeFilters =
-    getCheckedValues("seatType");
-
-
-  const maximumPrice =
-    Number(
-      document.getElementById("priceFilter")
-        ?.value || 1500
-    );
-
-
-  /*
-   * Departure filtering
-   */
-
-  if (departureFilters.length > 0) {
-
-    buses =
-      buses.filter((bus) => {
-
-        return departureFilters.some(
-          (filter) => {
-
-            if (
-              filter === "morning"
-            ) {
-              return (
-                bus.departureHour >= 6 &&
-                bus.departureHour < 12
-              );
-            }
-
-
-            if (
-              filter === "afternoon"
-            ) {
-              return (
-                bus.departureHour >= 12 &&
-                bus.departureHour < 18
-              );
-            }
-
-
-            if (
-              filter === "evening"
-            ) {
-              return (
-                bus.departureHour >= 18 &&
-                bus.departureHour <= 23
-              );
-            }
-
-
-            return false;
-
-          }
-        );
-
-      });
-
-  }
-
-
-  /*
-   * Bus type
-   */
-
-  if (busTypeFilters.length > 0) {
-
-    buses =
-      buses.filter((bus) =>
-        busTypeFilters.includes(
-          bus.busType
-        )
-      );
-
-  }
-
-
-  /*
-   * Seat type
-   */
-
-  if (seatTypeFilters.length > 0) {
-
-    buses =
-      buses.filter((bus) =>
-        seatTypeFilters.includes(
-          bus.seatType
-        )
-      );
-
-  }
-
-
-  /*
-   * Price
-   */
-
-  buses =
-    buses.filter(
-      (bus) =>
-        bus.price <= maximumPrice
-    );
-
-
-  /*
-   * Sorting
-   */
-
-  const sortValue =
-    document.getElementById("sortResults")
-      ?.value || "recommended";
-
-
-  if (sortValue === "price-low") {
-
-    buses.sort(
-      (a, b) =>
-        a.price - b.price
-    );
-
-  } else if (sortValue === "price-high") {
-
-    buses.sort(
-      (a, b) =>
-        b.price - a.price
-    );
-
-  } else if (sortValue === "departure") {
-
-    buses.sort(
-      (a, b) =>
-        a.departureHour -
-        b.departureHour
-    );
-
-  } else if (sortValue === "duration") {
-
-    buses.sort(
-      (a, b) =>
-        a.duration -
-        b.duration
-    );
-
-  } else {
-
-    buses.sort(
-      (a, b) =>
-        Number(b.recommended) -
-        Number(a.recommended)
-    );
-
-  }
-
-
-  return buses;
-}
-
 
 function renderBusResults() {
 
   const container =
-    document.getElementById("busResults");
-
-  const summary =
-    document.getElementById("resultsSummary");
-
+    document.getElementById(
+      "busResults"
+    ) ||
+    document.querySelector(
+      ".bus-results"
+    );
 
   if (!container) {
     return;
   }
 
+  updateBusCount();
 
-  const buses =
-    getFilteredBuses();
+  container.innerHTML = "";
 
-
-  if (summary) {
-
-    summary.textContent =
-      `${buses.length} ${buses.length === 1
-        ? "bus"
-        : "buses"
-      } found`;
-
-  }
-
-
-  if (buses.length === 0) {
+  if (
+    filteredSchedules.length === 0
+  ) {
 
     container.innerHTML = `
-            <div class="results-empty">
-
-                <div
-                    class="results-empty-icon"
-                    aria-hidden="true"
-                >
-                    ⌕
-                </div>
-
-                <h3>
-                    No buses found
-                </h3>
-
+            <div class="empty-state">
+                <div class="empty-state-icon">⌕</div>
+                <h3>No buses found</h3>
                 <p>
-                    Try changing your filters or
-                    selecting another travel option.
+                    Try changing your route,
+                    travel date, or filters.
                 </p>
-
             </div>
         `;
 
     return;
   }
 
+  filteredSchedules.forEach(
+    schedule => {
 
-  container.innerHTML =
-    buses
-      .map(renderBusCard)
-      .join("");
+      const card =
+        createBusCard(
+          schedule
+        );
 
+      container.appendChild(
+        card
+      );
 
-  initializeSeatButtons();
+    }
+  );
 
 }
 
 
 /* =========================================================
-   Bus Card
+   Create Bus Card
    ========================================================= */
 
-function renderBusCard(bus) {
+function createBusCard(schedule) {
+
+  const bus =
+    schedule.bus;
+
+  const route =
+    schedule.route;
+
+  const departure =
+    new Date(
+      schedule.departureTime
+    );
+
+  const arrival =
+    new Date(
+      schedule.arrivalTime
+    );
+
+  const duration =
+    calculateDuration(
+      departure,
+      arrival
+    );
+
+  const availableSeats =
+    Number(
+      bus.totalSeats || 0
+    );
+
+  const card =
+    document.createElement(
+      "article"
+    );
+
+  card.className =
+    "bus-card";
+
+  card.dataset.scheduleId =
+    String(
+      schedule.id
+    );
 
   const features =
-    bus.features
+    getBusFeatures(
+      bus.busType
+    );
+
+  card.innerHTML = `
+        <div class="bus-card-main">
+
+            <div class="bus-info">
+
+                <h3>
+                    ${escapeHtml(
+    bus.busName ||
+    "SmartBus"
+  )}
+                </h3>
+
+                <div class="bus-tags">
+
+                    ${features
       .map(
-        (feature) => `
-                    <span class="bus-feature">
-                        <span
-                            class="bus-feature-icon"
-                            aria-hidden="true"
-                        >
-                            ✓
-                        </span>
-
-                        ${escapeHTML(feature)}
-                    </span>
-                `
+        feature => `
+                                <span class="bus-tag">
+                                    ${escapeHtml(feature)}
+                                </span>
+                            `
       )
-      .join("");
-
-
-  return `
-        <article
-            class="bus-card"
-            data-bus-id="${bus.id}"
-data-schedule-id="${bus.scheduleId || ""}"
-        >
-
-            <div class="bus-card-main">
-
-
-                <div class="bus-company">
-
-                    <span class="bus-company-name">
-                        ${escapeHTML(bus.company)}
-                    </span>
-
-                    <div class="bus-company-meta">
-
-                        <span class="bus-type-badge">
-                            ${escapeHTML(bus.busType)}
-                        </span>
-
-                        <span class="bus-type-badge">
-                            ${escapeHTML(bus.seatType)}
-                        </span>
-
-                    </div>
+      .join("")
+    }
 
                 </div>
 
-
-                <div class="bus-route">
-
-                    <div class="bus-time">
-
-                        <strong>
-                            ${escapeHTML(bus.departure)}
-                        </strong>
-
-                        <span>
-                            ${escapeHTML(bus.from)}
-                        </span>
-
-                    </div>
+            </div>
 
 
-                    <div class="bus-route-line">
+            <div class="journey-info">
 
-                        <span class="bus-duration">
-                            ${escapeHTML(bus.durationText)}
-                        </span>
-
-                        <div class="bus-line"></div>
-
-                        <span class="bus-duration">
-                            Direct
-                        </span>
-
-                    </div>
-
-
-                    <div class="bus-time destination">
-
-                        <strong>
-                            ${escapeHTML(bus.arrival)}
-                        </strong>
-
-                        <span>
-                            ${escapeHTML(bus.to)}
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="bus-price">
-
-                    <span>
-                        Starting from
-                    </span>
+                <div class="time-location">
 
                     <strong>
-                        ${formatCurrency(bus.price)}
+                        ${formatTime(departure)}
                     </strong>
 
-                </div>
-
-            </div>
-
-
-            <div class="bus-card-details">
-
-                <div class="bus-features">
-                    ${features}
-                </div>
-
-
-                <div class="bus-card-actions">
-
-                    <span class="seats-left">
-                        ${bus.seatsLeft} seats left
+                    <span>
+                        ${escapeHtml(
+      route.source || ""
+    )}
                     </span>
 
-                    <button
-                        type="button"
-                        class="btn btn-primary view-seats-button"
-                        data-bus-id="${bus.id}"
-data-schedule-id="${bus.scheduleId || ""}"
-                    >
-                        Select Seats
-                        <span aria-hidden="true">→</span>
-                    </button>
+                </div>
+
+
+                <div class="journey-line">
+
+                    <span>
+                        ${duration}
+                    </span>
+
+                    <div class="route-line">
+                        <span class="route-point"></span>
+                        <span class="route-path"></span>
+                        <span class="route-point"></span>
+                    </div>
+
+                    <small>
+                        Direct
+                    </small>
+
+                </div>
+
+
+                <div class="time-location">
+
+                    <strong>
+                        ${formatTime(arrival)}
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+      route.destination || ""
+    )}
+                    </span>
 
                 </div>
 
             </div>
 
-        </article>
+
+            <div class="fare-info">
+
+                <span>
+                    Starting from
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+      schedule.fare
+    )}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="bus-card-footer">
+
+            <div class="bus-features">
+
+                <span>
+                    ✓ ${escapeHtml(
+      bus.busType ||
+      "Bus"
+    )}
+                </span>
+
+                <span>
+                    ✓ Live Tracking
+                </span>
+
+            </div>
+
+
+            <div class="seat-action">
+
+                <span class="seat-count">
+                    ${availableSeats} seats
+                </span>
+
+                <button
+                    type="button"
+                    class="select-seat-button"
+                    data-schedule-id="${Number(schedule.id)}"
+                >
+                    Select Seats →
+                </button>
+
+            </div>
+
+        </div>
     `;
-}
 
 
-/* =========================================================
-   Seat Selection Button
-   ========================================================= */
-
-function initializeSeatButtons() {
-
-  const buttons =
-    document.querySelectorAll(
-      ".view-seats-button"
+  const selectButton =
+    card.querySelector(
+      ".select-seat-button"
     );
 
-  buttons.forEach((button) => {
+  selectButton.addEventListener(
+    "click",
+    () => {
 
-    button.addEventListener(
-      "click",
-      () => {
+      openSeatSelection(
+        schedule
+      );
 
-        const busId =
-          button.dataset.busId;
+    }
+  );
 
-        const scheduleId =
-          button.dataset.scheduleId;
-
-        if (!scheduleId) {
-
-          alert(
-            "No schedule is associated with this bus."
-          );
-
-          return;
-        }
-
-        /*
-         * Preserve the selected bus.
-         */
-        sessionStorage.setItem(
-          "smartbus_selected_bus",
-          busId
-        );
-
-        /*
-         * Preserve the selected schedule.
-         */
-        sessionStorage.setItem(
-          "smartbus_schedule_id",
-          scheduleId
-        );
-
-        /*
-         * Open seat selection using
-         * the backend schedule ID.
-         */
-        window.location.href =
-          `./passenger/seat-selection.html?scheduleId=${encodeURIComponent(scheduleId)}`;
-
-      }
-    );
-
-  });
+  return card;
 
 }
 
 
 /* =========================================================
-   Helpers
+   Open Seat Selection
    ========================================================= */
 
-function getCheckedValues(name) {
+function openSeatSelection(schedule) {
+
+  console.log("[search.js] openSeatSelection called with schedule:", schedule);
+  console.log("[search.js] schedule.id (backend schedule ID):", schedule.id);
+  console.log("[search.js] schedule.bus.busName:", schedule.bus?.busName);
+
+  /*
+   * Save the schedule as a convenience for later pages.
+   * The seat-selection page still fetches the exact
+   * schedule from the backend using scheduleId.
+   */
+
+  sessionStorage.setItem(
+    "smartbus_schedule_id",
+    String(
+      schedule.id
+    )
+  );
+
+  sessionStorage.setItem(
+    "smartbus_selected_schedule",
+    JSON.stringify(
+      schedule
+    )
+  );
+
+
+  /*
+   * Real backend schedule ID.
+   *
+   * Example:
+   *
+   * Highland Bus -> scheduleId=4
+   * Royal Express -> scheduleId=8
+   */
+
+  const url = `./passenger/seat-selection.html?scheduleId=${encodeURIComponent(schedule.id)}`;
+  console.log("[search.js] Navigating to:", url);
+  window.location.href = url;
+
+}
+
+
+/* =========================================================
+   Filter Helpers
+   ========================================================= */
+
+function getCheckedValues(selector) {
 
   return [
     ...document.querySelectorAll(
-      `input[name="${name}"]:checked`
+      `${selector}:checked`
     )
   ].map(
-    (input) => input.value
+    input =>
+      input.value ||
+      input.dataset.filter ||
+      input.dataset.value
   );
+
+}
+
+
+function getMaxPrice() {
+
+  const range =
+    document.getElementById(
+      "priceRange"
+    );
+
+  if (!range) {
+    return null;
+  }
+
+  const value =
+    Number(
+      range.value
+    );
+
+  return Number.isFinite(value)
+    ? value
+    : null;
+
+}
+
+
+function matchesDepartureTime(
+  hour,
+  value
+) {
+
+  const normalized =
+    String(value)
+      .toLowerCase()
+      .trim();
+
+  if (
+    normalized === "morning"
+  ) {
+
+    return (
+      hour >= 6 &&
+      hour < 12
+    );
+
+  }
+
+  if (
+    normalized === "afternoon"
+  ) {
+
+    return (
+      hour >= 12 &&
+      hour < 18
+    );
+
+  }
+
+  if (
+    normalized === "evening"
+  ) {
+
+    return (
+      hour >= 18 ||
+      hour < 6
+    );
+
+  }
+
+  return true;
+
+}
+
+
+/* =========================================================
+   Bus Count
+   ========================================================= */
+
+function updateBusCount() {
+
+  const count =
+    filteredSchedules.length;
+
+  const countText =
+    `${count} bus${count === 1 ? "" : "es"} found`;
+
+  const element =
+    document.getElementById(
+      "busCount"
+    );
+
+  if (element) {
+
+    element.textContent =
+      countText;
+
+  }
+
+}
+
+
+/* =========================================================
+   API Error Handling
+   ========================================================= */
+
+function handleApiError(
+  response,
+  defaultMessage
+) {
+
+  if (
+    response.status === 401
+  ) {
+
+    throw new Error(
+      "Your session has expired. Please log in again."
+    );
+
+  }
+
+  if (
+    response.status === 403
+  ) {
+
+    throw new Error(
+      "You do not have permission to access bus schedules."
+    );
+
+  }
+
+  if (
+    response.status === 404
+  ) {
+
+    throw new Error(
+      "Bus schedules were not found."
+    );
+
+  }
+
+  throw new Error(
+    `${defaultMessage} HTTP ${response.status}`
+  );
+
+}
+
+
+/* =========================================================
+   Loading State
+   ========================================================= */
+
+function setLoadingState(isLoading) {
+
+  const container =
+    document.getElementById(
+      "busResults"
+    ) ||
+    document.querySelector(
+      ".bus-results"
+    );
+
+  if (
+    !container ||
+    !isLoading
+  ) {
+    return;
+  }
+
+  container.innerHTML = `
+        <div class="empty-state">
+            <h3>Loading buses...</h3>
+            <p>
+                Please wait while schedules are loaded.
+            </p>
+        </div>
+    `;
+
+}
+
+
+/* =========================================================
+   Utility Functions
+   ========================================================= */
+
+function getInputValue(id) {
+
+  const element =
+    document.getElementById(id);
+
+  return element
+    ? element.value.trim()
+    : "";
+
+}
+
+
+function normalizeText(value) {
+
+  return String(
+    value || ""
+  )
+    .trim()
+    .toLowerCase();
+
+}
+
+
+function formatDateForInput(date) {
+
+  if (
+    !(date instanceof Date) ||
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(2, "0");
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+
+}
+
+
+function formatTime(date) {
+
+  if (
+    !(date instanceof Date) ||
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(
+    "en-IN",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    }
+  ).format(date);
+
+}
+
+
+function calculateDuration(
+  departure,
+  arrival
+) {
+
+  if (
+    !(departure instanceof Date) ||
+    !(arrival instanceof Date)
+  ) {
+    return "";
+  }
+
+  const difference =
+    arrival.getTime() -
+    departure.getTime();
+
+  if (
+    difference < 0
+  ) {
+    return "";
+  }
+
+  const totalMinutes =
+    Math.round(
+      difference / 60000
+    );
+
+  const hours =
+    Math.floor(
+      totalMinutes / 60
+    );
+
+  const minutes =
+    totalMinutes % 60;
+
+  return minutes === 0
+    ? `${hours}h`
+    : `${hours}h ${minutes}m`;
 
 }
 
@@ -909,18 +1312,87 @@ function formatCurrency(value) {
       currency: "INR",
       maximumFractionDigits: 0
     }
-  ).format(value);
+  ).format(
+    Number(value) || 0
+  );
 
 }
 
 
-function escapeHTML(value) {
+function getBusFeatures(busType) {
 
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  const type =
+    String(
+      busType || ""
+    );
+
+  const features =
+    [];
+
+  if (
+    type.toLowerCase()
+      .includes("non-ac")
+  ) {
+
+    features.push(
+      "Non-AC"
+    );
+
+  } else if (
+    type.toLowerCase()
+      .includes("ac")
+  ) {
+
+    features.push(
+      "AC"
+    );
+
+  }
+
+  if (
+    type.toLowerCase()
+      .includes("sleeper")
+  ) {
+
+    features.push(
+      "Sleeper"
+    );
+
+  } else if (
+    type.toLowerCase()
+      .includes("seater")
+  ) {
+
+    features.push(
+      "Seater"
+    );
+
+  }
+
+  return features;
+
+}
+
+
+function escapeHtml(value) {
+
+  const element =
+    document.createElement(
+      "div"
+    );
+
+  element.textContent =
+    String(value || "");
+
+  return element.innerHTML;
+
+}
+
+
+function showSearchMessage(message) {
+
+  console.warn(
+    message
+  );
 
 }

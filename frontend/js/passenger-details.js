@@ -29,8 +29,6 @@ document.addEventListener(
    Configuration
    ========================================================= */
 
-const SEAT_PRICE = 850;
-
 const SERVICE_FEE_PER_SEAT = 25;
 
 
@@ -43,13 +41,19 @@ function initializePassengerDetails() {
     const selectedSeats =
         getSelectedSeats();
 
+    const selectedSchedule =
+        getSelectedSchedule();
+
 
     /*
      * The user should not be able to reach this page
      * without selecting seats.
      */
 
-    if (selectedSeats.length === 0) {
+    if (
+        selectedSeats.length === 0 ||
+        !selectedSchedule
+    ) {
 
         redirectToSeatSelection();
 
@@ -66,14 +70,77 @@ function initializePassengerDetails() {
     );
 
     updateBookingSummary(
-        selectedSeats
+        selectedSeats,
+        selectedSchedule
     );
 
     initializeContactValidation();
 
     initializeContinueButton(
-        selectedSeats
+        selectedSeats,
+        selectedSchedule
     );
+
+}
+
+
+function getSelectedSchedule() {
+
+    const storedSchedule =
+        sessionStorage.getItem(
+            "smartbus_selected_schedule"
+        );
+
+    if (!storedSchedule) {
+        return null;
+    }
+
+    try {
+
+        const schedule =
+            JSON.parse(storedSchedule);
+
+        if (!schedule || typeof schedule !== "object") {
+            return null;
+        }
+
+        const bus = schedule.bus || {};
+        const route = schedule.route || {};
+
+        const normalizedSchedule = {
+            scheduleId: schedule.scheduleId || schedule.id,
+            busName: schedule.busName || schedule.company || bus.busName,
+            from: schedule.from || route.source,
+            to: schedule.to || route.destination,
+            departureTime: schedule.departureTime,
+            arrivalTime: schedule.arrivalTime,
+            departureDate: schedule.departureDate || schedule.departureTime,
+            fare: Number(schedule.fare)
+        };
+
+        if (
+            !normalizedSchedule.busName ||
+            !normalizedSchedule.from ||
+            !normalizedSchedule.to ||
+            !normalizedSchedule.departureTime ||
+            !normalizedSchedule.arrivalTime ||
+            !Number.isFinite(normalizedSchedule.fare)
+        ) {
+            return null;
+        }
+
+        return normalizedSchedule;
+
+    } catch (error) {
+
+        console.error(
+            "Unable to read selected schedule:",
+            error
+        );
+
+        return null;
+
+    }
 
 }
 
@@ -329,7 +396,8 @@ function updatePassengerCount(
    ========================================================= */
 
 function updateBookingSummary(
-    selectedSeats
+    selectedSeats,
+    selectedSchedule
 ) {
 
     const seatCount =
@@ -337,7 +405,7 @@ function updateBookingSummary(
 
 
     const seatFare =
-        seatCount * SEAT_PRICE;
+        seatCount * selectedSchedule.fare;
 
 
     const serviceFee =
@@ -353,6 +421,51 @@ function updateBookingSummary(
     setText(
         "summarySeats",
         selectedSeats.join(", ")
+    );
+
+    setText(
+        "summaryBusName",
+        selectedSchedule.busName
+    );
+
+    const routeBlocks =
+        document.querySelectorAll(
+            ".details-route > div"
+        );
+
+    if (routeBlocks.length >= 2) {
+
+        setElementText(
+            routeBlocks[0].querySelector("strong"),
+            selectedSchedule.from
+        );
+
+        setElementText(
+            routeBlocks[0].querySelector("span"),
+            selectedSchedule.departureTime
+        );
+
+        setElementText(
+            routeBlocks[1].querySelector("strong"),
+            selectedSchedule.to
+        );
+
+        setElementText(
+            routeBlocks[1].querySelector("span"),
+            selectedSchedule.arrivalTime
+        );
+
+    }
+
+    const travelDateRow =
+        [...document.querySelectorAll(".details-summary-row")]
+            .find(row =>
+                row.querySelector("span")?.textContent.trim() === "Travel date"
+            );
+
+    setElementText(
+        travelDateRow?.querySelector("strong"),
+        formatTravelDate(selectedSchedule.departureDate)
     );
 
 
@@ -429,7 +542,8 @@ function initializeContactValidation() {
    ========================================================= */
 
 function initializeContinueButton(
-    selectedSeats
+    selectedSeats,
+    selectedSchedule
 ) {
 
     const button =
@@ -483,13 +597,17 @@ function initializeContinueButton(
             const bookingData = {
 
                 bus: {
-                    name: "Royal Express",
-                    from: "Guwahati",
-                    to: "Imphal",
-                    departure: "07:30 AM",
-                    arrival: "06:00 PM",
-                    date: "2026-08-20"
+                    name: selectedSchedule.busName,
+                    from: selectedSchedule.from,
+                    to: selectedSchedule.to,
+                    departure: selectedSchedule.departureTime,
+                    arrival: selectedSchedule.arrivalTime,
+                    date: selectedSchedule.departureDate
                 },
+
+                scheduleId: selectedSchedule.scheduleId,
+
+                schedule: selectedSchedule,
 
                 seats: selectedSeats,
 
@@ -500,7 +618,7 @@ function initializeContinueButton(
                 fare: {
                     seatFare:
                         selectedSeats.length *
-                        SEAT_PRICE,
+                        selectedSchedule.fare,
 
                     serviceFee:
                         selectedSeats.length *
@@ -508,7 +626,8 @@ function initializeContinueButton(
 
                     total:
                         calculateTotal(
-                            selectedSeats.length
+                            selectedSeats.length,
+                            selectedSchedule.fare
                         )
                 }
 
@@ -778,12 +897,12 @@ function redirectToSeatSelection() {
    ========================================================= */
 
 function calculateTotal(
-    passengerCount
+    passengerCount,
+    fare
 ) {
 
     const seatFare =
-        passengerCount *
-        SEAT_PRICE;
+        passengerCount * fare;
 
 
     const serviceFee =
@@ -792,6 +911,35 @@ function calculateTotal(
 
 
     return seatFare + serviceFee;
+
+}
+
+
+function setElementText(element, value) {
+
+    if (element) {
+        element.textContent = value || "";
+    }
+
+}
+
+
+function formatTravelDate(value) {
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value || "";
+    }
+
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
 
 }
 

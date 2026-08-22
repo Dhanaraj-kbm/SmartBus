@@ -96,16 +96,12 @@
             <section class="seat-trip-card">
 
                 <div class="seat-trip-company">
-                    <span class="bus-type-badge">AC</span>
+                    <span id="selectedBusTypeBadge" class="bus-type-badge"></span>
 
                     <div>
-                        <strong id="selectedBusName">
-                            Royal Express
-                        </strong>
+                        <strong id="selectedBusName"></strong>
 
-                        <span>
-                            AC Sleeper
-                        </span>
+                        <span id="selectedBusType"></span>
                     </div>
                 </div>
 
@@ -113,19 +109,19 @@
                 <div class="seat-trip-route">
 
                     <div>
-                        <strong>07:30 AM</strong>
-                        <span>Guwahati</span>
+                        <strong id="selectedDepartureTime"></strong>
+                        <span id="selectedFromCity"></span>
                     </div>
 
                     <div class="seat-trip-line">
-                        <span>10h 30m</span>
+                        <span id="selectedDuration"></span>
                         <div></div>
                         <small>Direct</small>
                     </div>
 
                     <div class="seat-trip-destination">
-                        <strong>06:00 PM</strong>
-                        <span>Imphal</span>
+                        <strong id="selectedArrivalTime"></strong>
+                        <span id="selectedToCity"></span>
                     </div>
 
                 </div>
@@ -133,7 +129,7 @@
 
                 <div class="seat-trip-date">
                     <span>Travel date</span>
-                    <strong>20 Aug 2026</strong>
+                    <strong id="selectedTravelDate"></strong>
                 </div>
 
             </section>
@@ -233,8 +229,8 @@
                     <div class="summary-route">
 
                         <div>
-                            <strong>Guwahati</strong>
-                            <span>07:30 AM</span>
+                            <strong id="summaryFromCity"></strong>
+                            <span id="summaryDepartureTime"></span>
                         </div>
 
                         <span class="summary-arrow">
@@ -242,8 +238,8 @@
                         </span>
 
                         <div>
-                            <strong>Imphal</strong>
-                            <span>06:00 PM</span>
+                            <strong id="summaryToCity"></strong>
+                            <span id="summaryArrivalTime"></span>
                         </div>
 
                     </div>
@@ -258,9 +254,7 @@
                             Bus
                         </span>
 
-                        <strong id="summaryBus">
-                            Royal Express
-                        </strong>
+                        <strong id="summaryBus"></strong>
 
                     </div>
 
@@ -271,9 +265,7 @@
                             Travel date
                         </span>
 
-                        <strong>
-                            20 Aug 2026
-                        </strong>
+                        <strong id="summaryTravelDate"></strong>
 
                     </div>
 
